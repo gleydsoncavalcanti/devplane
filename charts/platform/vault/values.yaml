@@ -22,7 +22,7 @@ vault:
       enabled: true
       ingressClassName: nginx
       hosts:
-        - host: vault.devplane
+        - host: vault.localhost
           paths:
             - /
       tls: []
