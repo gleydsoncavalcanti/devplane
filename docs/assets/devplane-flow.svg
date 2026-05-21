@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="520" viewBox="0 0 1120 520" role="img" aria-labelledby="title desc">
+  <title id="title">DevPlane architecture flow</title>
+  <desc id="desc">DevPlane CLI bootstraps a local kind platform cluster, installs ArgoCD, applies ApplicationSets, and reconciles packaged charts for platform, agents, and observability.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#e6f4f1"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#25636a"/>
+    </marker>
+    <style>
+      .title { font: 700 26px Arial, sans-serif; fill: #132f33; }
+      .label { font: 700 16px Arial, sans-serif; fill: #16353a; }
+      .small { font: 13px Arial, sans-serif; fill: #36565b; }
+      .box { fill: #ffffff; stroke: #8bb8b2; stroke-width: 2; rx: 10; }
+      .core { fill: #e7f5ef; stroke: #54a383; }
+      .obs { fill: #eef2ff; stroke: #7b8ce6; }
+      .agent { fill: #fff7e6; stroke: #d49b39; }
+      .line { stroke: #25636a; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 7 7; }
+    </style>
+  </defs>
+  <rect width="1120" height="520" fill="url(#bg)"/>
+  <text x="48" y="54" class="title">DevPlane packaged platform flow</text>
+  <text x="48" y="82" class="small">One repo ships the CLI, Codex skill, kind configs, ArgoCD ApplicationSets, and Helm charts.</text>
+
+  <rect x="48" y="132" width="190" height="100" class="box"/>
+  <text x="78" y="170" class="label">devplane CLI</text>
+  <text x="78" y="196" class="small">install-prereqs</text>
+  <text x="78" y="216" class="small">up / hosts / status</text>
+
+  <rect x="304" y="116" width="230" height="132" class="box core"/>
+  <text x="338" y="154" class="label">kind platform</text>
+  <text x="338" y="180" class="small">ingress-nginx</text>
+  <text x="338" y="200" class="small">ArgoCD bootstrap</text>
+  <text x="338" y="220" class="small">argo.devplane</text>
+
+  <rect x="600" y="116" width="220" height="132" class="box core"/>
+  <text x="636" y="154" class="label">ApplicationSets</text>
+  <text x="636" y="180" class="small">platform-addons</text>
+  <text x="636" y="200" class="small">workload-agents</text>
+  <text x="636" y="220" class="small">observability profile</text>
+
+  <rect x="884" y="70" width="190" height="112" class="box core"/>
+  <text x="920" y="108" class="label">platform</text>
+  <text x="920" y="134" class="small">Vault</text>
+  <text x="920" y="154" class="small">External Secrets</text>
+  <text x="920" y="174" class="small">Kyverno</text>
+
+  <rect x="884" y="214" width="190" height="112" class="box agent"/>
+  <text x="922" y="252" class="label">agents</text>
+  <text x="922" y="278" class="small">OpenTelemetry</text>
+  <text x="922" y="298" class="small">Vector</text>
+
+  <rect x="884" y="358" width="190" height="112" class="box obs"/>
+  <text x="908" y="396" class="label">observability</text>
+  <text x="908" y="422" class="small">Grafana, Loki</text>
+  <text x="908" y="442" class="small">Tempo, Mimir</text>
+  <text x="908" y="462" class="small">MinIO storage</text>
+
+  <rect x="304" y="326" width="230" height="112" class="box"/>
+  <text x="334" y="364" class="label">workload clusters</text>
+  <text x="334" y="390" class="small">devplane.io/workload=true</text>
+  <text x="334" y="410" class="small">apps, data, integrations</text>
+
+  <path class="line" d="M 238 182 L 304 182"/>
+  <path class="line" d="M 534 182 L 600 182"/>
+  <path class="line" d="M 820 166 L 884 126"/>
+  <path class="line" d="M 820 190 L 884 270"/>
+  <path class="line" d="M 820 214 L 884 414"/>
+  <path class="line dash" d="M 600 232 C 560 292 520 326 534 382"/>
+  <path class="line dash" d="M 534 382 C 650 382 760 330 884 270"/>
+  <path class="line dash" d="M 534 404 C 650 430 760 438 884 414"/>
+
+  <text x="570" y="362" class="small">OTel -> Vector -> Loki / Tempo / Mimir</text>
+</svg>

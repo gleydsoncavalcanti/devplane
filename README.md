@@ -1,17 +1,14 @@
 # DevPlane
 
-DevPlane e uma base local de plataforma para desenvolvimento em kind/local, empacotada para uso via CLI e GitOps.
+DevPlane is a local platform foundation for kind-based development, packaged for CLI and GitOps workflows.
 
-## Modelo
+## Model
 
-O DevPlane e autocontido: os charts Helm ficam neste repositorio em `charts/`, e o ArgoCD aplica tudo por ApplicationSets.
+DevPlane is self-contained: Helm charts live in this repository under `charts/`, and ArgoCD applies them through ApplicationSets.
 
-Os repositorios abaixo continuam existindo no GitHub como origem historica/espelho dos charts, mas nao sao mais obrigatorios para usar o DevPlane:
+![DevPlane flow](docs/assets/devplane-flow.svg)
 
-- `git@github.com:gleydsoncavalcanti/addons.git`
-- `git@github.com:gleydsoncavalcanti/observability-charts.git`
-
-## Estrutura
+## Structure
 
 ```text
 charts/
@@ -36,59 +33,59 @@ skills/
 docs/
 ```
 
-## Instalar CLI E Pre-Requisitos
+## Install The CLI And Prerequisites
 
-Depois de clonar o repositorio:
+After cloning the repository:
 
 ```bash
 make install-cli
 devplane install-prereqs
 ```
 
-`install-prereqs` e idempotente: se `git`, `make`, `docker`, `kubectl`, `helm` ou `kind` ja existirem, ele ignora.
+`install-prereqs` is idempotent: if `git`, `make`, `docker`, `kubectl`, `helm`, or `kind` are already installed, it skips them.
 
-Para instalar como pacote a partir do GitHub, incluindo a skill do Codex:
+To install DevPlane as a package from GitHub, including the Codex skill:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/gleydsoncavalcanti/devplane/main/packaging/install.sh | bash
 ```
 
-Isso instala:
+This installs:
 
-- CLI `devplane` em `~/.local/bin`;
-- skill em `~/.codex/skills/devplane`;
-- repo em `~/.devplane/devplane`.
+- the `devplane` CLI in `~/.local/bin`;
+- the Codex skill in `~/.codex/skills/devplane`;
+- the repository in `~/.devplane/devplane`.
 
-## Subir Plataforma Local
+## Start The Local Platform
 
 ```bash
 devplane up
 ```
 
-O comando cria o kind cluster, instala o bootstrap minimo `ingress-nginx` e `argocd` usando os charts empacotados em `charts/platform/`, e aplica os ApplicationSets em `gitops/applicationsets/`.
+The command creates the kind cluster, installs the minimum bootstrap stack `ingress-nginx` and `argocd` from packaged charts in `charts/platform/`, and applies the ApplicationSets in `gitops/applicationsets/`.
 
-Depois do bootstrap, o proprio ArgoCD reconcilia:
+After bootstrap, ArgoCD reconciles:
 
-- addons de plataforma: ArgoCD, ingress-nginx, Vault, External Secrets e Kyverno;
-- agentes: OpenTelemetry Collector e Vector;
-- profile de observabilidade: Grafana, Loki, Tempo e Mimir.
+- platform addons: ArgoCD, ingress-nginx, Vault, External Secrets, and Kyverno;
+- agents: OpenTelemetry Collector and Vector;
+- observability profile: Grafana, Loki, Tempo, and Mimir.
 
-## Telemetria
+## Telemetry
 
-O fluxo padrao de telemetria e:
+The default telemetry flow is:
 
 ```text
 OpenTelemetry Collector -> Vector -> Loki / Tempo / Mimir
 ```
 
-- OpenTelemetry Collector coleta logs, metricas e traces e encaminha para Vector via OTLP.
-- Vector recebe logs, metricas e traces, e envia para os datastores.
-- Loki recebe logs.
-- Tempo recebe traces.
-- Mimir recebe metricas.
-- MinIO e usado como armazenamento de objetos para a stack de observabilidade onde suportado pelos charts.
+- OpenTelemetry Collector collects logs, metrics, and traces and forwards them to Vector over OTLP.
+- Vector receives logs, metrics, and traces, then sends them to the datastores.
+- Loki receives logs.
+- Tempo receives traces.
+- Mimir receives metrics.
+- MinIO is used as object storage for the observability stack where supported by the charts.
 
-Use Mimir para metricas. Nao use Prometheus/kube-prometheus-stack no baseline de workloads.
+Use Mimir for metrics. Do not use Prometheus/kube-prometheus-stack in the workload baseline.
 
 ## Workload Clusters
 
@@ -99,31 +96,30 @@ devplane cluster workloads
 devplane cluster remove runtime
 ```
 
-Clusters de workload devem ser registrados no ArgoCD com:
+Workload clusters must be registered in ArgoCD with:
 
 ```yaml
 devplane.io/workload: "true"
 ```
 
-Assim eles recebem os ApplicationSets de agentes e observabilidade.
+Then they receive the agent and observability ApplicationSets.
 
-## Dominios Locais
+## Local Domains
 
 ```bash
 devplane hosts
 ```
 
-O comando atualiza o bloco gerenciado do DevPlane em `/etc/hosts` com:
+The command updates the DevPlane-managed block in `/etc/hosts` with:
 
-- `argocd.localhost`
-- `vault.localhost`
+- `argo.devplane`
+- `vault.devplane`
+- `grafana.devplane`
 
-## Comandos Uteis
+## Useful Commands
 
 ```bash
 devplane status
 devplane cluster appsets
 devplane down
 ```
-
-KEDA e Karpenter nao fazem parte da instalacao local neste momento.

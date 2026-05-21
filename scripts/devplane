@@ -25,7 +25,7 @@ KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-devplane}"
 WORKLOAD_CLUSTERS_DIR="${WORKLOAD_CLUSTERS_DIR:-${ROOT_DIR}/clusters/workloads}"
 BOOTSTRAP_ADDONS="${BOOTSTRAP_ADDONS:-ingress-nginx,argocd}"
 APPLICATIONSETS_DIR="${APPLICATIONSETS_DIR:-${ROOT_DIR}/gitops/applicationsets}"
-PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argocd.localhost vault.localhost}"
+PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argo.devplane vault.devplane grafana.devplane}"
 
 usage() {
   cat <<'EOF'
@@ -474,8 +474,10 @@ configure_hosts() {
   local ip
   ip="${INGRESS_HOST_IP:-$(ingress_host_ip "${context}")}"
 
+  local raw_domains=()
   local domains=()
-  read -ra domains <<< "${PLATFORM_DOMAINS}"
+  read -ra raw_domains <<< "${PLATFORM_DOMAINS}"
+  mapfile -t domains < <(printf '%s\n' "${raw_domains[@]}" | awk 'NF' | sort -u)
 
   if [[ "${#domains[@]}" -eq 0 ]]; then
     echo "No platform domains configured. Set PLATFORM_DOMAINS."
@@ -494,7 +496,10 @@ configure_hosts() {
 
   {
     echo "# devplane begin"
-    echo "${ip} ${domains[*]}"
+    local domain
+    for domain in "${domains[@]}"; do
+      echo "${ip} ${domain}"
+    done
     echo "# devplane end"
   } >> "${tmp_file}"
 
@@ -507,7 +512,10 @@ configure_hosts() {
   rm -f "${tmp_file}"
 
   echo "Updated ${hosts_file}:"
-  echo "${ip} ${domains[*]}"
+  local domain
+  for domain in "${domains[@]}"; do
+    echo "${ip} ${domain}"
+  done
 }
 
 run_cluster_command() {
