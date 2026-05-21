@@ -1,6 +1,6 @@
 app:
   name: contabilidade
-  domain: contabilidade.devplane
+  domain: contabilidade.localhost
   replicaCount: 1
 
 image:

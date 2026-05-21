@@ -11,7 +11,7 @@ service:
 ingress:
   enabled: true
   className: nginx
-  host: portal.devplane
+  host: portal.localhost
   path: /
 
 resources: {}

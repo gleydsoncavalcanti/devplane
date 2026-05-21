@@ -39,10 +39,10 @@ Depois do bootstrap inicial, o ArgoCD assume a reconciliacao dos addons de plata
 
 ## Dominios
 
-- ArgoCD: `http://argo.devplane`
-- Portal: `http://portal.devplane`
-- Vault: `http://vault.devplane`
-- Grafana: `http://grafana.devplane`
+- ArgoCD: `http://argo.localhost`
+- Portal: `http://portal.localhost`
+- Vault: `http://vault.localhost`
+- Grafana: `http://grafana.localhost`
 
 Atualize o `/etc/hosts`:
 

@@ -1,6 +1,6 @@
 app:
   name: sample-app
-  domain: sample.devplane
+  domain: sample.localhost
   replicaCount: 1
 
 image:

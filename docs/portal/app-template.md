@@ -58,23 +58,23 @@ OpenTelemetry auto-instrumentation.
 Produtos:
 
 ```bash
-curl http://produtos.devplane/health
-curl http://produtos.devplane/produtos
-curl -X POST "http://produtos.devplane/produtos/NB-DEV-001/entrada?quantidade=2"
+curl http://produtos.localhost/health
+curl http://produtos.localhost/produtos
+curl -X POST "http://produtos.localhost/produtos/NB-DEV-001/entrada?quantidade=2"
 ```
 
 Contabilidade:
 
 ```bash
-curl http://contabilidade.devplane/health
-curl http://contabilidade.devplane/balanco
-curl -X POST "http://contabilidade.devplane/lancamentos?conta=receita&descricao=Consultoria&valor=1200"
+curl http://contabilidade.localhost/health
+curl http://contabilidade.localhost/balanco
+curl -X POST "http://contabilidade.localhost/lancamentos?conta=receita&descricao=Consultoria&valor=1200"
 ```
 
 Logistica:
 
 ```bash
-curl http://logistica.devplane/health
-curl http://logistica.devplane/entregas
-curl -X POST "http://logistica.devplane/entregas/ENT-1001/status?status=entregue"
+curl http://logistica.localhost/health
+curl http://logistica.localhost/entregas
+curl -X POST "http://logistica.localhost/entregas/ENT-1001/status?status=entregue"
 ```

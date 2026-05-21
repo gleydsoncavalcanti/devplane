@@ -154,10 +154,10 @@ devplane hosts
 
 The command updates the DevPlane-managed block in `/etc/hosts` with:
 
-- `argo.devplane`
-- `portal.devplane`
-- `vault.devplane`
-- `grafana.devplane`
+- `argo.localhost`
+- `portal.localhost`
+- `vault.localhost`
+- `grafana.localhost`
 
 ## Useful Commands
 
