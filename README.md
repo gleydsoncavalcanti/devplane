@@ -35,7 +35,7 @@ docs/
 
 Application examples and rollout templates live in a separate repository:
 
-(https://github.com/gleydsoncavalcanti/devplane-apps)
+[devplane-apps](https://github.com/gleydsoncavalcanti/devplane-apps)
 
 
 ## Install The CLI And Prerequisites
