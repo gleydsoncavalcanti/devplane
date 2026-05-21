@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: workload-observability-charts
+  namespace: argocd
+spec:
+  generators:
+    - matrix:
+        generators:
+          - clusters:
+              selector:
+                matchLabels:
+                  devplane.io/workload: "true"
+          - list:
+              elements:
+                - chart: mimir
+                - chart: loki
+                - chart: tempo
+                - chart: grafana
+  template:
+    metadata:
+      name: '{{name}}-{{chart}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/gleydsoncavalcanti/devplane.git
+        targetRevision: main
+        path: charts/observability/{{chart}}
+        helm:
+          releaseName: '{{chart}}'
+      destination:
+        server: '{{server}}'
+        namespace: observability
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

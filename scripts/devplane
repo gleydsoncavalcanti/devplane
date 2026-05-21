@@ -1,0 +1,591 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_script_dir() {
+  local source="${BASH_SOURCE[0]}"
+  local dir
+
+  while [[ -L "${source}" ]]; do
+    dir="$(cd -P "$(dirname "${source}")" && pwd)"
+    source="$(readlink "${source}")"
+
+    if [[ "${source}" != /* ]]; then
+      source="${dir}/${source}"
+    fi
+  done
+
+  cd -P "$(dirname "${source}")" && pwd
+}
+
+SCRIPT_DIR="$(resolve_script_dir)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+DEFAULT_CLUSTER_CONFIG="${ROOT_DIR}/clusters/platform/kind-config.yaml"
+CLUSTER_CONFIG="${CLUSTER_CONFIG:-${DEFAULT_CLUSTER_CONFIG}}"
+KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-devplane}"
+WORKLOAD_CLUSTERS_DIR="${WORKLOAD_CLUSTERS_DIR:-${ROOT_DIR}/clusters/workloads}"
+BOOTSTRAP_ADDONS="${BOOTSTRAP_ADDONS:-ingress-nginx,argocd}"
+APPLICATIONSETS_DIR="${APPLICATIONSETS_DIR:-${ROOT_DIR}/gitops/applicationsets}"
+PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argocd.localhost vault.localhost}"
+
+usage() {
+  cat <<'EOF'
+devplane
+
+Usage:
+  ./scripts/devplane <command>
+  ./scripts/devplane cluster <command>
+
+Commands:
+  help                  Show this help message
+  install-prereqs       Install required local tools when missing
+  up                    Create the local environment, bootstrap ArgoCD, and apply GitOps
+  down                  Delete the local kind cluster
+  status                Show local environment status
+  hosts                 Add platform domains to /etc/hosts
+
+Cluster commands:
+  cluster add <name>    Create a workload cluster for ArgoCD-managed addons
+  cluster generate <name> Generate a workload cluster definition only
+  cluster remove <name> Remove a workload cluster
+  cluster workloads      List workload cluster definitions
+  cluster create        Create the local kind cluster
+  cluster delete        Delete the local kind cluster
+  cluster status        Show Helm release and ApplicationSet status
+  cluster appsets       Apply ArgoCD ApplicationSets
+  cluster hosts         Add platform domains to /etc/hosts
+
+Environment:
+  KUBECONFIG_CONTEXT    Optional Kubernetes context. Defaults to current kubectl context.
+  INGRESS_HOST_IP       Optional IP used in /etc/hosts. Defaults to ingress IP or 127.0.0.1.
+  CLUSTER_CONFIG        Optional kind config path. Defaults to clusters/platform/kind-config.yaml.
+  KIND_CLUSTER_NAME     Optional kind cluster name. Defaults to devplane.
+  WORKLOAD_CLUSTERS_DIR  Optional workload clusters directory. Defaults to clusters/workloads.
+  BOOTSTRAP_ADDONS      Comma-separated addons installed by up. Defaults to ingress-nginx,argocd.
+  APPLICATIONSETS_DIR   Optional ApplicationSets directory. Defaults to gitops/applicationsets.
+  PLATFORM_DOMAINS      Space-separated domains managed by hosts.
+EOF
+}
+
+require_command() {
+  local command_name="$1"
+
+  if ! command -v "${command_name}" >/dev/null 2>&1; then
+    echo "Required command not found: ${command_name}" >&2
+    exit 1
+  fi
+}
+
+has_command() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+run_with_sudo() {
+  if [[ "${EUID}" -eq 0 ]]; then
+    "$@"
+  else
+    require_command sudo
+    sudo "$@"
+  fi
+}
+
+install_linux_packages() {
+  if has_command apt-get; then
+    run_with_sudo apt-get update
+    run_with_sudo apt-get install -y ca-certificates curl git make docker.io
+  elif has_command dnf; then
+    run_with_sudo dnf install -y ca-certificates curl git make docker
+  elif has_command yum; then
+    run_with_sudo yum install -y ca-certificates curl git make docker
+  elif has_command pacman; then
+    run_with_sudo pacman -Sy --needed --noconfirm ca-certificates curl git make docker
+  else
+    echo "No supported package manager found. Install curl, git, make, and Docker manually." >&2
+  fi
+}
+
+install_macos_packages() {
+  if ! has_command brew; then
+    echo "Homebrew is required on macOS. Install it from https://brew.sh and rerun this command." >&2
+    exit 1
+  fi
+
+  brew install git make docker kubectl helm kind
+}
+
+install_binary() {
+  local name="$1"
+  local url="$2"
+  local mode="${3:-0755}"
+  local tmp_file
+  tmp_file="$(mktemp)"
+
+  curl -fsSL "${url}" -o "${tmp_file}"
+  chmod "${mode}" "${tmp_file}"
+  run_with_sudo mv "${tmp_file}" "/usr/local/bin/${name}"
+}
+
+install_prereqs() {
+  case "$(uname -s)" in
+    Linux)
+      install_linux_packages
+      ;;
+    Darwin)
+      install_macos_packages
+      ;;
+    *)
+      echo "Unsupported OS: $(uname -s)" >&2
+      exit 1
+      ;;
+  esac
+
+  if ! has_command kubectl; then
+    local kubectl_version
+    kubectl_version="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
+    install_binary kubectl "https://dl.k8s.io/release/${kubectl_version}/bin/linux/amd64/kubectl"
+  fi
+
+  if ! has_command helm; then
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  fi
+
+  if ! has_command kind; then
+    install_binary kind "https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64"
+  fi
+
+  echo "DevPlane prerequisites are installed or already available."
+  echo "Required commands:"
+  for command_name in git make docker kubectl helm kind; do
+    if has_command "${command_name}"; then
+      printf '  ok   %s\n' "${command_name}"
+    else
+      printf '  miss %s\n' "${command_name}"
+    fi
+  done
+}
+
+kube_context() {
+  require_command kubectl
+  echo "${KUBECONFIG_CONTEXT:-$(kubectl config current-context)}"
+}
+
+kind_context() {
+  echo "kind-${KIND_CLUSTER_NAME}"
+}
+
+kind_cluster_exists() {
+  require_command kind
+  kind get clusters | grep -Fx "${KIND_CLUSTER_NAME}" >/dev/null 2>&1
+}
+
+create_cluster() {
+  require_command kind
+
+  if kind_cluster_exists; then
+    echo "Kind cluster already exists: ${KIND_CLUSTER_NAME}"
+    return 0
+  fi
+
+  if [[ ! -f "${CLUSTER_CONFIG}" ]]; then
+    echo "Kind config not found: ${CLUSTER_CONFIG}" >&2
+    exit 1
+  fi
+
+  echo "Creating kind cluster: ${KIND_CLUSTER_NAME}"
+  kind create cluster --name "${KIND_CLUSTER_NAME}" --config "${CLUSTER_CONFIG}"
+}
+
+delete_cluster() {
+  require_command kind
+
+  if ! kind_cluster_exists; then
+    echo "Kind cluster not found, skipping: ${KIND_CLUSTER_NAME}"
+    return 0
+  fi
+
+  echo "Deleting kind cluster: ${KIND_CLUSTER_NAME}"
+  kind delete cluster --name "${KIND_CLUSTER_NAME}"
+}
+
+
+workload_cluster_name() {
+  local name="$1"
+  echo "devplane-${name}"
+}
+
+workload_cluster_dir() {
+  local name="$1"
+  echo "${WORKLOAD_CLUSTERS_DIR}/${name}"
+}
+
+validate_workload_cluster_name() {
+  local name="$1"
+
+  if [[ -z "${name}" ]]; then
+    echo "Cluster name is required." >&2
+    echo "Usage: ./scripts/devplane cluster add <name>" >&2
+    exit 1
+  fi
+
+  if [[ ! "${name}" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+    echo "Invalid cluster name: ${name}" >&2
+    echo "Use lowercase letters, numbers and hyphens only." >&2
+    exit 1
+  fi
+}
+
+write_file_if_missing() {
+  local file="$1"
+  local content="$2"
+
+  if [[ -f "${file}" ]]; then
+    return 0
+  fi
+
+  mkdir -p "$(dirname "${file}")"
+  printf '%s\n' "${content}" > "${file}"
+}
+
+write_workload_cluster_files() {
+  local name="$1"
+  local cluster_name
+  local cluster_dir
+  cluster_name="$(workload_cluster_name "${name}")"
+  cluster_dir="$(workload_cluster_dir "${name}")"
+
+  mkdir -p "${cluster_dir}"
+
+  write_file_if_missing "${cluster_dir}/kind-config.yaml" "$(cat <<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: ${cluster_name}
+nodes:
+  - role: control-plane
+  - role: worker
+    labels:
+      devplane.io/node-group: app
+  - role: worker
+    labels:
+      devplane.io/node-group: observability
+  - role: worker
+    labels:
+      devplane.io/node-group: databases
+EOF
+)"
+
+  write_file_if_missing "${cluster_dir}/README.md" "$(cat <<EOF
+# ${name}
+
+Managed DevPlane workload cluster.
+
+Kind cluster name: \`${cluster_name}\`
+
+Node groups simulated with kind worker labels:
+
+- \`devplane.io/node-group=app\`
+- \`devplane.io/node-group=observability\`
+- \`devplane.io/node-group=databases\`
+
+ArgoCD-managed observability baseline:
+
+- Grafana
+- Loki
+- Tempo
+- Mimir
+- OpenTelemetry Collector
+- Vector
+
+Workload addons are managed by ArgoCD ApplicationSet cluster generators.
+Register this cluster in ArgoCD with:
+
+- \`devplane.io/workload=true\`
+EOF
+)"
+}
+
+workload_cluster_up() {
+  local name="$1"
+  validate_workload_cluster_name "${name}"
+  write_workload_cluster_files "${name}"
+
+  local previous_cluster_config="${CLUSTER_CONFIG}"
+  local previous_kind_cluster_name="${KIND_CLUSTER_NAME}"
+  local cluster_dir
+
+  cluster_dir="$(workload_cluster_dir "${name}")"
+  CLUSTER_CONFIG="${cluster_dir}/kind-config.yaml"
+  KIND_CLUSTER_NAME="$(workload_cluster_name "${name}")"
+
+  create_cluster
+  echo "Workload cluster created: $(kind_context)"
+  echo "Register it in ArgoCD with label devplane.io/workload=true to receive generated addons."
+
+  CLUSTER_CONFIG="${previous_cluster_config}"
+  KIND_CLUSTER_NAME="${previous_kind_cluster_name}"
+}
+
+workload_cluster_remove() {
+  local name="$1"
+  validate_workload_cluster_name "${name}"
+
+  local cluster_dir
+  cluster_dir="$(workload_cluster_dir "${name}")"
+
+  if [[ ! -d "${cluster_dir}" ]]; then
+    echo "Workload cluster definition not found: ${cluster_dir}" >&2
+    exit 1
+  fi
+
+  local previous_cluster_config="${CLUSTER_CONFIG}"
+  local previous_kind_cluster_name="${KIND_CLUSTER_NAME}"
+
+  CLUSTER_CONFIG="${cluster_dir}/kind-config.yaml"
+  KIND_CLUSTER_NAME="$(workload_cluster_name "${name}")"
+
+  delete_cluster
+
+  CLUSTER_CONFIG="${previous_cluster_config}"
+  KIND_CLUSTER_NAME="${previous_kind_cluster_name}"
+}
+
+workload_cluster_list() {
+  shopt -s nullglob
+  local dirs=("${WORKLOAD_CLUSTERS_DIR}"/*)
+  shopt -u nullglob
+
+  if [[ "${#dirs[@]}" -eq 0 ]]; then
+    echo "No workload clusters defined."
+    return 0
+  fi
+
+  local dir
+  for dir in "${dirs[@]}"; do
+    if [[ -d "${dir}" ]]; then
+      basename "${dir}"
+    fi
+  done
+}
+
+bootstrap_addon_chart() {
+  require_command helm
+
+  local addon="$1"
+  local context="$2"
+  local chart_dir="${ROOT_DIR}/charts/platform/${addon}"
+
+  if [[ ! -d "${chart_dir}" ]]; then
+    echo "Bootstrap chart not found: ${chart_dir}" >&2
+    exit 1
+  fi
+
+  helm dependency update "${chart_dir}"
+  helm upgrade --install "${addon}" "${chart_dir}" \
+    --namespace "${addon}" \
+    --create-namespace \
+    --kube-context "${context}" \
+    --wait \
+    --timeout 10m
+}
+
+install_bootstrap_addons() {
+  local context
+  context="${KUBECONFIG_CONTEXT:-$(kind_context)}"
+
+  echo "Installing DevPlane bootstrap addons from packaged charts in context: ${context}"
+
+  local addon
+  IFS=',' read -ra bootstrap_addons <<< "${BOOTSTRAP_ADDONS}"
+  for addon in "${bootstrap_addons[@]}"; do
+    if [[ -n "${addon}" ]]; then
+      bootstrap_addon_chart "${addon}" "${context}"
+    fi
+  done
+}
+
+apply_applicationsets() {
+  require_command kubectl
+
+  local context
+  context="${KUBECONFIG_CONTEXT:-$(kind_context)}"
+
+  if [[ ! -d "${APPLICATIONSETS_DIR}" ]]; then
+    echo "ApplicationSets directory not found: ${APPLICATIONSETS_DIR}" >&2
+    exit 1
+  fi
+
+  echo "Applying ArgoCD ApplicationSets in context: ${context}"
+  kubectl apply --context "${context}" -f "${APPLICATIONSETS_DIR}"
+}
+
+up() {
+  create_cluster
+  KUBECONFIG_CONTEXT="${KUBECONFIG_CONTEXT:-$(kind_context)}" install_bootstrap_addons
+  KUBECONFIG_CONTEXT="${KUBECONFIG_CONTEXT:-$(kind_context)}" apply_applicationsets
+}
+
+down() {
+  delete_cluster
+}
+
+status() {
+  require_command helm
+  require_command kubectl
+  local context
+  context="${KUBECONFIG_CONTEXT:-$(kind_context)}"
+
+  echo "Helm releases in context: ${context}"
+  helm list --all-namespaces --kube-context "${context}"
+
+  echo
+  echo "ArgoCD ApplicationSets:"
+  kubectl get applicationsets.argoproj.io --context "${context}" --namespace argocd 2>/dev/null || true
+
+  echo
+  echo "ArgoCD Applications:"
+  kubectl get applications.argoproj.io --context "${context}" --namespace argocd 2>/dev/null || true
+}
+
+ingress_host_ip() {
+  local context="$1"
+  local ip=""
+
+  ip="$(kubectl get service ingress-nginx-controller \
+    --namespace ingress-nginx \
+    --context "${context}" \
+    --output jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)"
+
+  if [[ -n "${ip}" ]]; then
+    echo "${ip}"
+    return 0
+  fi
+
+  echo "127.0.0.1"
+}
+
+configure_hosts() {
+  require_command kubectl
+
+  if [[ "${EUID}" -ne 0 ]]; then
+    require_command sudo
+  fi
+
+  local context
+  context="${KUBECONFIG_CONTEXT:-$(kind_context)}"
+
+  local ip
+  ip="${INGRESS_HOST_IP:-$(ingress_host_ip "${context}")}"
+
+  local domains=()
+  read -ra domains <<< "${PLATFORM_DOMAINS}"
+
+  if [[ "${#domains[@]}" -eq 0 ]]; then
+    echo "No platform domains configured. Set PLATFORM_DOMAINS."
+    return 0
+  fi
+
+  local hosts_file="/etc/hosts"
+  local tmp_file
+  tmp_file="$(mktemp)"
+
+  awk '
+    /^# devplane begin$/ { skip = 1; next }
+    /^# devplane end$/ { skip = 0; next }
+    skip != 1 { print }
+  ' "${hosts_file}" > "${tmp_file}"
+
+  {
+    echo "# devplane begin"
+    echo "${ip} ${domains[*]}"
+    echo "# devplane end"
+  } >> "${tmp_file}"
+
+  if [[ "${EUID}" -eq 0 ]]; then
+    cp "${tmp_file}" "${hosts_file}"
+  else
+    sudo cp "${tmp_file}" "${hosts_file}"
+  fi
+
+  rm -f "${tmp_file}"
+
+  echo "Updated ${hosts_file}:"
+  echo "${ip} ${domains[*]}"
+}
+
+run_cluster_command() {
+  local command="${1:-help}"
+  local target="${2:-}"
+
+  case "${command}" in
+    add)
+      workload_cluster_up "${target}"
+      ;;
+    generate)
+      validate_workload_cluster_name "${target}"
+      write_workload_cluster_files "${target}"
+      echo "Generated workload cluster definition: $(workload_cluster_dir "${target}")"
+      ;;
+    remove)
+      workload_cluster_remove "${target}"
+      ;;
+    workloads|workload)
+      workload_cluster_list
+      ;;
+    create)
+      create_cluster
+      ;;
+    delete)
+      delete_cluster
+      ;;
+    status)
+      status
+      ;;
+    appsets)
+      apply_applicationsets
+      ;;
+    hosts)
+      configure_hosts
+      ;;
+    *)
+      echo "Unknown cluster command: ${command}" >&2
+      echo >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+}
+
+main() {
+  local command="${1:-help}"
+
+  case "${command}" in
+    help|-h|--help)
+      usage
+      ;;
+    install-prereqs)
+      install_prereqs
+      ;;
+    up)
+      up
+      ;;
+    down)
+      down
+      ;;
+    status)
+      status
+      ;;
+    hosts)
+      configure_hosts
+      ;;
+    cluster)
+      shift
+      run_cluster_command "$@"
+      ;;
+    *)
+      echo "Unknown command: ${command}" >&2
+      echo >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

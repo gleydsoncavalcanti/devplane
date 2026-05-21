@@ -1,0 +1,45 @@
+vector:
+  role: Agent
+  service:
+    enabled: true
+    ports:
+      - name: otlp-grpc
+        port: 4317
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        protocol: TCP
+  nodeSelector:
+    devplane.io/node-group: observability
+  customConfig:
+    data_dir: /vector-data-dir
+    sources:
+      kubernetes_logs:
+        type: kubernetes_logs
+      otlp:
+        type: opentelemetry
+        grpc:
+          address: 0.0.0.0:4317
+        http:
+          address: 0.0.0.0:4318
+    sinks:
+      loki:
+        type: loki
+        inputs:
+          - kubernetes_logs
+          - otlp.logs
+        endpoint: http://loki-gateway.observability.svc.cluster.local
+        encoding:
+          codec: json
+      mimir:
+        type: prometheus_remote_write
+        inputs:
+          - otlp.metrics
+        endpoint: http://mimir-nginx.observability.svc.cluster.local/api/v1/push
+      tempo:
+        type: opentelemetry
+        inputs:
+          - otlp.traces
+        protocol:
+          type: grpc
+          uri: http://tempo.observability.svc.cluster.local:4317

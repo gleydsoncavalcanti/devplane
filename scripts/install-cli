@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_script_dir() {
+  local source="${BASH_SOURCE[0]}"
+  local dir
+
+  while [[ -L "${source}" ]]; do
+    dir="$(cd -P "$(dirname "${source}")" && pwd)"
+    source="$(readlink "${source}")"
+
+    if [[ "${source}" != /* ]]; then
+      source="${dir}/${source}"
+    fi
+  done
+
+  cd -P "$(dirname "${source}")" && pwd
+}
+
+SCRIPT_DIR="$(resolve_script_dir)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+BIN_DIR="${BIN_DIR:-/usr/local/bin}"
+TARGET="${BIN_DIR}/devplane"
+
+if [[ "${EUID}" -eq 0 ]]; then
+  mkdir -p "${BIN_DIR}"
+  ln -sf "${ROOT_DIR}/scripts/devplane" "${TARGET}"
+else
+  sudo mkdir -p "${BIN_DIR}"
+  sudo ln -sf "${ROOT_DIR}/scripts/devplane" "${TARGET}"
+fi
+
+echo "Installed devplane CLI at ${TARGET}"

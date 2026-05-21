@@ -1,0 +1,27 @@
+ingress-nginx:
+  controller:
+    kind: DaemonSet
+    ingressClass: nginx
+    watchIngressWithoutClass: false
+
+    ingressClassResource:
+      name: nginx
+      enabled: true
+      default: true
+      controllerValue: k8s.io/ingress-nginx
+
+    hostPort:
+      enabled: true
+      ports:
+        http: 80
+        https: 443
+
+    service:
+      enabled: true
+      type: ClusterIP
+
+    admissionWebhooks:
+      enabled: true
+
+    metrics:
+      enabled: false

@@ -1,0 +1,25 @@
+grafana:
+  adminPassword: admin
+  service:
+    type: ClusterIP
+  nodeSelector:
+    devplane.io/node-group: observability
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://loki-gateway.observability.svc.cluster.local
+          isDefault: false
+        - name: Tempo
+          type: tempo
+          access: proxy
+          url: http://tempo.observability.svc.cluster.local:3100
+          isDefault: false
+        - name: Mimir
+          type: prometheus
+          access: proxy
+          url: http://mimir-nginx.observability.svc.cluster.local/prometheus
+          isDefault: true

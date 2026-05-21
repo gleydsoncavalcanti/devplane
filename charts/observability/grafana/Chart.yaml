@@ -1,0 +1,10 @@
+apiVersion: v2
+name: devplane-grafana
+description: DevPlane Grafana wrapper chart with Loki, Tempo and Mimir datasources.
+type: application
+version: 0.1.0
+appVersion: "12.2.0"
+dependencies:
+  - name: grafana
+    version: "10.1.2"
+    repository: https://grafana.github.io/helm-charts

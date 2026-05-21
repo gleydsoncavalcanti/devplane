@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-addons
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - chart: ingress-nginx
+            namespace: ingress-nginx
+          - chart: argocd
+            namespace: argocd
+          - chart: vault
+            namespace: vault
+          - chart: external-secrets
+            namespace: external-secrets
+          - chart: kyverno
+            namespace: kyverno
+  template:
+    metadata:
+      name: 'platform-{{chart}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/gleydsoncavalcanti/devplane.git
+        targetRevision: main
+        path: charts/platform/{{chart}}
+        helm:
+          releaseName: '{{chart}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

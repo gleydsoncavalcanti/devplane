@@ -1,0 +1,10 @@
+apiVersion: v2
+name: devplane-opentelemetry-collector
+description: DevPlane OpenTelemetry Collector wrapper chart for workload clusters.
+type: application
+version: 0.1.0
+appVersion: "0.139.0"
+dependencies:
+  - name: opentelemetry-collector
+    version: "0.139.0"
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts

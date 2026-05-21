@@ -1,0 +1,30 @@
+opentelemetry-collector:
+  mode: daemonset
+  image:
+    repository: otel/opentelemetry-collector-contrib
+  presets:
+    logsCollection:
+      enabled: true
+    hostMetrics:
+      enabled: true
+    kubeletMetrics:
+      enabled: true
+  config:
+    exporters:
+      otlp/vector:
+        endpoint: vector.observability.svc.cluster.local:4317
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        logs:
+          exporters:
+            - otlp/vector
+        metrics:
+          exporters:
+            - otlp/vector
+        traces:
+          exporters:
+            - otlp/vector
+  nodeSelector:
+    devplane.io/node-group: observability

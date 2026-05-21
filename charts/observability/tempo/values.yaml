@@ -1,0 +1,18 @@
+tempo:
+  tempo:
+    storage:
+      trace:
+        backend: s3
+        s3:
+          bucket: tempo
+          endpoint: mimir-minio.observability.svc.cluster.local:9000
+          access_key: grafana-mimir
+          secret_key: supersecret
+          insecure: true
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+  nodeSelector:
+    devplane.io/node-group: observability

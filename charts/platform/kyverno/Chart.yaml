@@ -1,0 +1,10 @@
+apiVersion: v2
+name: devplane-kyverno
+description: DevPlane Kyverno wrapper chart.
+type: application
+version: 0.1.0
+appVersion: "v1.18.1"
+dependencies:
+  - name: kyverno
+    version: "3.8.1"
+    repository: https://kyverno.github.io/kyverno/

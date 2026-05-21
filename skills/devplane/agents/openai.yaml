@@ -1,0 +1,4 @@
+interface:
+  display_name: "DevPlane"
+  short_description: "Operate and evolve the DevPlane developer platform."
+  default_prompt: "Use the DevPlane skill to inspect, install, and evolve the local DevPlane platform safely."

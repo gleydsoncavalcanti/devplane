@@ -1,0 +1,47 @@
+mimir-distributed:
+  minio:
+    enabled: true
+  gateway:
+    enabledNonEnterprise: true
+    nodeSelector:
+      devplane.io/node-group: observability
+  nginx:
+    nodeSelector:
+      devplane.io/node-group: observability
+  distributor:
+    replicas: 1
+    nodeSelector:
+      devplane.io/node-group: observability
+  ingester:
+    replicas: 1
+    zoneAwareReplication:
+      enabled: false
+    persistentVolume:
+      enabled: false
+    nodeSelector:
+      devplane.io/node-group: observability
+  querier:
+    replicas: 1
+    nodeSelector:
+      devplane.io/node-group: observability
+  query_frontend:
+    replicas: 1
+    nodeSelector:
+      devplane.io/node-group: observability
+  compactor:
+    persistentVolume:
+      enabled: false
+    nodeSelector:
+      devplane.io/node-group: observability
+  store_gateway:
+    replicas: 1
+    persistentVolume:
+      enabled: false
+    zoneAwareReplication:
+      enabled: false
+    nodeSelector:
+      devplane.io/node-group: observability
+  ruler:
+    enabled: false
+  alertmanager:
+    enabled: false
