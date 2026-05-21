@@ -6,6 +6,8 @@ Addons are packaged Helm charts inside this repository.
 
 ```text
 charts/
+├── apps/
+│   └── application/
 ├── platform/
 │   ├── argocd/
 │   ├── ingress-nginx/

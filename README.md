@@ -12,6 +12,8 @@ DevPlane is self-contained: Helm charts live in this repository under `charts/`,
 
 ```text
 charts/
+├── apps/
+│   └── application/
 ├── platform/
 │   ├── argocd/
 │   ├── ingress-nginx/
@@ -104,6 +106,24 @@ devplane.io/workload: "true"
 ```
 
 Then they receive the agent and observability ApplicationSets.
+
+## Application Template
+
+DevPlane includes an application chart at:
+
+```text
+charts/apps/application
+```
+
+The portal will use this chart to generate app directories and values files.
+Initial templates are available for:
+
+- Produtos
+- Contabilidade
+- Logistica
+
+Each generated app can choose Postgres settings and observability options for
+logs, metrics, traces, and datastores.
 
 ## Local Domains
 

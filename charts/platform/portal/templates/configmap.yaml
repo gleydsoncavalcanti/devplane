@@ -23,11 +23,11 @@ data:
           body {
             margin: 0;
             min-height: 100vh;
-            display: grid;
-            place-items: center;
+            padding: 56px 0;
           }
           main {
             width: min(920px, calc(100vw - 48px));
+            margin: 0 auto;
           }
           h1 {
             margin: 0 0 14px;
@@ -59,6 +59,44 @@ data:
             border-radius: 999px;
             background: #54a383;
           }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 40px;
+          }
+          .card {
+            border: 1px solid #bfd7d2;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+          }
+          .card h2 {
+            margin: 0 0 10px;
+            font-size: 22px;
+          }
+          .card ul {
+            margin: 0;
+            padding-left: 18px;
+            color: #486166;
+            line-height: 1.7;
+          }
+          .options {
+            margin-top: 28px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #e7f5ef;
+            color: #244a4f;
+          }
+          .options strong {
+            display: block;
+            margin-bottom: 10px;
+          }
+          @media (max-width: 760px) {
+            .grid {
+              grid-template-columns: 1fr;
+            }
+          }
         </style>
       </head>
       <body>
@@ -66,9 +104,41 @@ data:
           <div class="meta"><span class="dot"></span> DevPlane Platform</div>
           <h1>Developer portal is online.</h1>
           <p>
-            This is the packaged DevPlane portal surface. Application onboarding
-            and runtime workflows will be added in the next iteration.
+            Choose an application template, configure Postgres and observability,
+            then generate an ArgoCD-managed rollout from the DevPlane application chart.
           </p>
+          <section class="grid" aria-label="Application templates">
+            <article class="card">
+              <h2>Produtos</h2>
+              <ul>
+                <li>Postgres database</li>
+                <li>Logs, metrics and traces</li>
+                <li>Loki, Mimir and Tempo</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h2>Contabilidade</h2>
+              <ul>
+                <li>Postgres database</li>
+                <li>Logs and metrics</li>
+                <li>Traces optional</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h2>Logistica</h2>
+              <ul>
+                <li>Postgres database</li>
+                <li>Logs and traces</li>
+                <li>Metrics optional</li>
+              </ul>
+            </article>
+          </section>
+          <section class="options">
+            <strong>Next portal action</strong>
+            Generate a local app values file, select logs, metrics and traces,
+            choose Loki, Mimir and Tempo as datastores, and let ArgoCD apply the
+            packaged application chart.
+          </section>
         </main>
       </body>
     </html>

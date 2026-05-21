@@ -15,6 +15,7 @@ The implemented local module is `cluster`. Prefer the CLI, packaged Helm charts,
 - `charts/platform` owns ArgoCD, ingress-nginx, DevPlane Portal, Vault, External Secrets, and Kyverno.
 - `charts/agents` owns OpenTelemetry Collector and Vector.
 - `charts/observability` owns Grafana, Loki, Tempo, and Mimir.
+- `charts/apps/application` owns the app rollout template used by the portal.
 - The existing GitHub repos `addons.git` and `observability-charts.git` may remain as mirrors/history, but they are not required for normal DevPlane usage.
 
 Do not add addon directories under `clusters/platform/addons` or `clusters/workloads/<name>/addons`.
