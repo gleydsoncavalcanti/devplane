@@ -14,6 +14,7 @@ O ApplicationSet `gitops/applicationsets/platform-addons.yaml` reconcilia:
 
 - `ingress-nginx`
 - `argocd`
+- `portal`
 - `vault`
 - `external-secrets`
 - `kyverno`
@@ -39,6 +40,7 @@ Depois do bootstrap inicial, o ArgoCD assume a reconciliacao dos addons de plata
 ## Dominios
 
 - ArgoCD: `http://argo.devplane`
+- Portal: `http://portal.devplane`
 - Vault: `http://vault.devplane`
 - Grafana: `http://grafana.devplane`
 

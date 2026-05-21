@@ -15,6 +15,7 @@ charts/
 ├── platform/
 │   ├── argocd/
 │   ├── ingress-nginx/
+│   ├── portal/
 │   ├── vault/
 │   ├── external-secrets/
 │   └── kyverno/
@@ -66,7 +67,7 @@ The command creates the kind cluster, installs the minimum bootstrap stack `ingr
 
 After bootstrap, ArgoCD reconciles:
 
-- platform addons: ArgoCD, ingress-nginx, Vault, External Secrets, and Kyverno;
+- platform addons: ArgoCD, ingress-nginx, DevPlane Portal, Vault, External Secrets, and Kyverno;
 - agents: OpenTelemetry Collector and Vector;
 - observability profile: Grafana, Loki, Tempo, and Mimir.
 
@@ -113,6 +114,7 @@ devplane hosts
 The command updates the DevPlane-managed block in `/etc/hosts` with:
 
 - `argo.devplane`
+- `portal.devplane`
 - `vault.devplane`
 - `grafana.devplane`
 

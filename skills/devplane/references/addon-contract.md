@@ -9,6 +9,7 @@ charts/
 ├── platform/
 │   ├── argocd/
 │   ├── ingress-nginx/
+│   ├── portal/
 │   ├── vault/
 │   ├── external-secrets/
 │   └── kyverno/
@@ -54,6 +55,7 @@ Do not edit `scripts/devplane` just to add a new addon.
 
 - `ingress-nginx`
 - `argocd`
+- `portal`
 - `vault`
 - `external-secrets`
 - `kyverno`

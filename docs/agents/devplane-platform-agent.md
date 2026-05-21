@@ -37,6 +37,8 @@ charts/agents/
 charts/observability/
 ```
 
+`charts/platform` inclui ArgoCD, ingress-nginx, DevPlane Portal, Vault, External Secrets e Kyverno.
+
 Os repositorios `addons.git` e `observability-charts.git` podem continuar existindo como historico/espelho, mas nao sao obrigatorios para uso normal.
 
 Nao crie `clusters/platform/addons/` nem `clusters/workloads/<cluster>/addons/`.

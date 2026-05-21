@@ -25,7 +25,7 @@ KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-devplane}"
 WORKLOAD_CLUSTERS_DIR="${WORKLOAD_CLUSTERS_DIR:-${ROOT_DIR}/clusters/workloads}"
 BOOTSTRAP_ADDONS="${BOOTSTRAP_ADDONS:-ingress-nginx,argocd}"
 APPLICATIONSETS_DIR="${APPLICATIONSETS_DIR:-${ROOT_DIR}/gitops/applicationsets}"
-PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argo.devplane vault.devplane grafana.devplane}"
+PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argo.devplane portal.devplane vault.devplane grafana.devplane}"
 
 usage() {
   cat <<'EOF'
