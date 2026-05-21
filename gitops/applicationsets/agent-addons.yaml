@@ -1,23 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: workload-agent-addons
+  name: agent-addons
   namespace: argocd
 spec:
   generators:
-    - matrix:
-        generators:
-          - clusters:
-              selector:
-                matchLabels:
-                  devplane.io/workload: "true"
-          - list:
-              elements:
-                - chart: opentelemetry-collector
-                - chart: vector
+    - list:
+        elements:
+          - chart: opentelemetry-collector
+          - chart: vector
   template:
     metadata:
-      name: '{{name}}-{{chart}}'
+      name: 'agent-{{chart}}'
     spec:
       project: default
       source:
@@ -27,7 +21,7 @@ spec:
         helm:
           releaseName: '{{chart}}'
       destination:
-        server: '{{server}}'
+        server: https://kubernetes.default.svc
         namespace: observability
       syncPolicy:
         automated:

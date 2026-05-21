@@ -10,3 +10,9 @@ nodes:
       - containerPort: 443
         hostPort: 443
         protocol: TCP
+  - role: worker
+    labels:
+      devplane.io/node-pool: addons
+  - role: worker
+    labels:
+      devplane.io/node-pool: addons

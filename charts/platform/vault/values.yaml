@@ -6,8 +6,12 @@ vault:
   injector:
     enabled: true
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   server:
+    nodeSelector:
+      devplane.io/node-pool: addons
     dev:
       enabled: true
       devRootToken: root
@@ -18,7 +22,7 @@ vault:
       enabled: true
       ingressClassName: nginx
       hosts:
-        - host: vault.localhost
+        - host: vault.devplane
           paths:
             - /
       tls: []

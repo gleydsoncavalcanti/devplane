@@ -1,6 +1,6 @@
 apiVersion: v2
 name: devplane-loki
-description: DevPlane Loki wrapper chart for workload clusters.
+description: DevPlane Loki wrapper chart for local logs.
 type: application
 version: 0.1.0
 appVersion: "3.5.7"

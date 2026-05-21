@@ -1,19 +1,21 @@
 argo-cd:
   global:
-    domain: argo.localhost
+    domain: argo.devplane
 
   configs:
     params:
       server.insecure: true
 
   server:
+    nodeSelector:
+      devplane.io/node-pool: addons
     service:
       type: ClusterIP
     ingress:
       enabled: true
       controller: generic
       ingressClassName: nginx
-      hostname: argo.localhost
+      hostname: argo.devplane
       path: /
       pathType: Prefix
       tls: false
@@ -21,12 +23,18 @@ argo-cd:
 
   controller:
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   repoServer:
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   applicationSet:
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   notifications:
     enabled: false

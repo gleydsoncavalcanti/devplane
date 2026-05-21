@@ -1,6 +1,6 @@
 apiVersion: v2
 name: devplane-tempo
-description: DevPlane Tempo wrapper chart for workload clusters.
+description: DevPlane Tempo wrapper chart for local traces.
 type: application
 version: 0.1.0
 appVersion: "2.9.0"

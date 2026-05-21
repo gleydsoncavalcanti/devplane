@@ -2,7 +2,7 @@ SHELL := /usr/bin/env bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install-cli install-prereqs up down status hosts cluster-add cluster-generate cluster-remove cluster-workloads cluster-workload cluster-create cluster-delete cluster-status cluster-appsets cluster-hosts
+.PHONY: help install-cli install-prereqs up down status hosts cluster-create cluster-delete cluster-status cluster-appsets cluster-hosts
 
 help:
 	@./scripts/devplane help
@@ -24,21 +24,6 @@ status:
 
 hosts:
 	@./scripts/devplane hosts
-
-cluster-add:
-	@./scripts/devplane cluster add $(NAME)
-
-cluster-generate:
-	@./scripts/devplane cluster generate $(NAME)
-
-cluster-remove:
-	@./scripts/devplane cluster remove $(NAME)
-
-cluster-workloads:
-	@./scripts/devplane cluster workloads
-
-cluster-workload:
-	@./scripts/devplane cluster workloads
 
 cluster-create:
 	@./scripts/devplane cluster create

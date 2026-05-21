@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="520" viewBox="0 0 1120 520" role="img" aria-labelledby="title desc">
-  <title id="title">DevPlane architecture flow</title>
-  <desc id="desc">DevPlane CLI bootstraps a local kind platform cluster, installs ArgoCD, applies ApplicationSets, and reconciles packaged charts for platform, agents, and observability.</desc>
+  <title id="title">DevPlane single-cluster flow</title>
+  <desc id="desc">DevPlane CLI bootstraps one local kind cluster, installs ArgoCD, applies ApplicationSets, and reconciles packaged charts for platform, agents, and observability.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fafc"/>
@@ -18,60 +18,58 @@
       .obs { fill: #eef2ff; stroke: #7b8ce6; }
       .agent { fill: #fff7e6; stroke: #d49b39; }
       .line { stroke: #25636a; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
-      .dash { stroke-dasharray: 7 7; }
     </style>
   </defs>
   <rect width="1120" height="520" fill="url(#bg)"/>
-  <text x="48" y="54" class="title">DevPlane packaged platform flow</text>
-  <text x="48" y="82" class="small">One repo ships the CLI, Codex skill, kind configs, ArgoCD ApplicationSets, and Helm charts.</text>
+  <text x="48" y="54" class="title">DevPlane single-cluster platform flow</text>
+  <text x="48" y="82" class="small">One repo ships the CLI, Codex skill, kind config, ArgoCD ApplicationSets, and Helm charts.</text>
 
-  <rect x="48" y="132" width="190" height="100" class="box"/>
-  <text x="78" y="170" class="label">devplane CLI</text>
-  <text x="78" y="196" class="small">install-prereqs</text>
-  <text x="78" y="216" class="small">up / hosts / status</text>
+  <rect x="54" y="164" width="190" height="100" class="box"/>
+  <text x="84" y="202" class="label">devplane CLI</text>
+  <text x="84" y="228" class="small">install-prereqs</text>
+  <text x="84" y="248" class="small">up / hosts / status</text>
 
-  <rect x="304" y="116" width="230" height="132" class="box core"/>
-  <text x="338" y="154" class="label">kind platform</text>
-  <text x="338" y="180" class="small">ingress-nginx</text>
-  <text x="338" y="200" class="small">ArgoCD bootstrap</text>
-  <text x="338" y="220" class="small">argo.devplane</text>
+  <rect x="310" y="130" width="230" height="168" class="box core"/>
+  <text x="344" y="168" class="label">kind devplane</text>
+  <text x="344" y="194" class="small">single local cluster</text>
+  <text x="344" y="214" class="small">ingress-nginx</text>
+  <text x="344" y="234" class="small">ArgoCD bootstrap</text>
+  <text x="344" y="254" class="small">argo.devplane</text>
 
-  <rect x="600" y="116" width="220" height="132" class="box core"/>
-  <text x="636" y="154" class="label">ApplicationSets</text>
-  <text x="636" y="180" class="small">platform-addons</text>
-  <text x="636" y="200" class="small">workload-agents</text>
-  <text x="636" y="220" class="small">observability profile</text>
+  <rect x="608" y="130" width="230" height="168" class="box core"/>
+  <text x="642" y="168" class="label">ApplicationSets</text>
+  <text x="642" y="194" class="small">platform-addons</text>
+  <text x="642" y="214" class="small">agent-addons</text>
+  <text x="642" y="234" class="small">observability-addons</text>
+  <text x="642" y="254" class="small">in-cluster target</text>
 
-  <rect x="884" y="70" width="190" height="112" class="box core"/>
-  <text x="920" y="108" class="label">platform</text>
-  <text x="920" y="134" class="small">Vault</text>
-  <text x="920" y="154" class="small">External Secrets</text>
-  <text x="920" y="174" class="small">Kyverno</text>
+  <rect x="900" y="58" width="190" height="112" class="box core"/>
+  <text x="936" y="96" class="label">platform</text>
+  <text x="936" y="122" class="small">Vault</text>
+  <text x="936" y="142" class="small">External Secrets</text>
+  <text x="936" y="162" class="small">Kyverno</text>
 
-  <rect x="884" y="214" width="190" height="112" class="box agent"/>
-  <text x="922" y="252" class="label">agents</text>
-  <text x="922" y="278" class="small">OpenTelemetry</text>
-  <text x="922" y="298" class="small">Vector</text>
+  <rect x="900" y="204" width="190" height="112" class="box agent"/>
+  <text x="938" y="242" class="label">agents</text>
+  <text x="938" y="268" class="small">OpenTelemetry</text>
+  <text x="938" y="288" class="small">Vector</text>
 
-  <rect x="884" y="358" width="190" height="112" class="box obs"/>
-  <text x="908" y="396" class="label">observability</text>
-  <text x="908" y="422" class="small">Grafana, Loki</text>
-  <text x="908" y="442" class="small">Tempo, Mimir</text>
-  <text x="908" y="462" class="small">MinIO storage</text>
+  <rect x="900" y="350" width="190" height="112" class="box obs"/>
+  <text x="924" y="388" class="label">observability</text>
+  <text x="924" y="414" class="small">Grafana, Loki</text>
+  <text x="924" y="434" class="small">Tempo, Mimir</text>
+  <text x="924" y="454" class="small">MinIO storage</text>
 
-  <rect x="304" y="326" width="230" height="112" class="box"/>
-  <text x="334" y="364" class="label">workload clusters</text>
-  <text x="334" y="390" class="small">devplane.io/workload=true</text>
-  <text x="334" y="410" class="small">apps, data, integrations</text>
+  <rect x="310" y="352" width="528" height="80" class="box"/>
+  <text x="344" y="386" class="label">apps live in devplane-apps</text>
+  <text x="344" y="412" class="small">sample services and application chart are versioned separately</text>
 
-  <path class="line" d="M 238 182 L 304 182"/>
-  <path class="line" d="M 534 182 L 600 182"/>
-  <path class="line" d="M 820 166 L 884 126"/>
-  <path class="line" d="M 820 190 L 884 270"/>
-  <path class="line" d="M 820 214 L 884 414"/>
-  <path class="line dash" d="M 600 232 C 560 292 520 326 534 382"/>
-  <path class="line dash" d="M 534 382 C 650 382 760 330 884 270"/>
-  <path class="line dash" d="M 534 404 C 650 430 760 438 884 414"/>
+  <path class="line" d="M 244 214 L 310 214"/>
+  <path class="line" d="M 540 214 L 608 214"/>
+  <path class="line" d="M 838 174 L 900 114"/>
+  <path class="line" d="M 838 214 L 900 260"/>
+  <path class="line" d="M 838 254 L 900 406"/>
+  <path class="line" d="M 608 390 L 540 390"/>
 
-  <text x="570" y="362" class="small">OTel -> Vector -> Loki / Tempo / Mimir</text>
+  <text x="548" y="332" class="small">OTel -> Vector -> Loki / Tempo / Mimir</text>
 </svg>

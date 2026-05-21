@@ -4,7 +4,7 @@ DevPlane is a local platform foundation for kind-based development, packaged for
 
 ## Model
 
-DevPlane is self-contained: Helm charts live in this repository under `charts/`, and ArgoCD applies them through ApplicationSets.
+DevPlane is self-contained: Helm charts live in this repository under `charts/`, and ArgoCD applies them through ApplicationSets into one local kind cluster.
 
 ![DevPlane flow](docs/assets/devplane-flow.svg)
 
@@ -12,12 +12,9 @@ DevPlane is self-contained: Helm charts live in this repository under `charts/`,
 
 ```text
 charts/
-├── apps/
-│   └── application/
 ├── platform/
 │   ├── argocd/
 │   ├── ingress-nginx/
-│   ├── portal/
 │   ├── vault/
 │   ├── external-secrets/
 │   └── kyverno/
@@ -29,11 +26,17 @@ charts/
     ├── loki/
     ├── tempo/
     └── mimir/
-clusters/
+clusters/platform/
 gitops/applicationsets/
 scripts/
 skills/
 docs/
+```
+
+Application examples and rollout templates live in a separate repository:
+
+```text
+https://github.com/gleydsoncavalcanti/devplane-apps
 ```
 
 ## Install The CLI And Prerequisites
@@ -65,13 +68,13 @@ This installs:
 devplane up
 ```
 
-The command creates the kind cluster, installs the minimum bootstrap stack `ingress-nginx` and `argocd` from packaged charts in `charts/platform/`, and applies the ApplicationSets in `gitops/applicationsets/`.
+The command creates one kind cluster with one control-plane node and two addon workers, installs the minimum bootstrap stack `ingress-nginx` and `argocd` from packaged charts, and applies the ApplicationSets in `gitops/applicationsets/`.
 
-After bootstrap, ArgoCD reconciles:
+After bootstrap, ArgoCD reconciles in the same cluster:
 
-- platform addons: ArgoCD, ingress-nginx, DevPlane Portal, Vault, External Secrets, and Kyverno;
+- platform addons: ArgoCD, ingress-nginx, Vault, External Secrets, and Kyverno;
 - agents: OpenTelemetry Collector and Vector;
-- observability profile: Grafana, Loki, Tempo, and Mimir.
+- observability stack: Grafana, Loki, Tempo, and Mimir.
 
 ## Telemetry
 
@@ -86,65 +89,9 @@ OpenTelemetry Collector -> Vector -> Loki / Tempo / Mimir
 - Loki receives logs.
 - Tempo receives traces.
 - Mimir receives metrics.
-- MinIO is used as object storage for the observability stack where supported by the charts.
+- MinIO is enabled by the Loki and Mimir charts for local object storage.
 
-Use Mimir for metrics. Do not use Prometheus/kube-prometheus-stack in the workload baseline.
-
-## Workload Clusters
-
-```bash
-devplane cluster generate runtime
-devplane cluster add runtime
-devplane cluster workloads
-devplane cluster remove runtime
-```
-
-Workload clusters must be registered in ArgoCD with:
-
-```yaml
-devplane.io/workload: "true"
-```
-
-Then they receive the agent and observability ApplicationSets.
-
-## Application Template
-
-DevPlane includes an application chart at:
-
-```text
-charts/apps/application
-```
-
-The portal will use this chart to generate app directories and values files.
-Initial templates are available for:
-
-- Produtos
-- Contabilidade
-- Logistica
-
-Each generated app can choose Postgres settings and observability options for
-logs, metrics, traces, and datastores.
-
-Packaged app templates are available in:
-
-```text
-apps/produtos
-apps/contabilidade
-apps/logistica
-```
-
-The portal workflow is backed by:
-
-```bash
-devplane app create produtos
-```
-
-This creates a local app directory and applies the generated ArgoCD
-`application.yaml`.
-
-The sample apps are real FastAPI services with Postgres access and
-OpenTelemetry auto-instrumentation, published by the `sample-apps` GitHub
-Actions workflow to GHCR.
+Use Mimir for metrics. Do not use Prometheus/kube-prometheus-stack in the local baseline.
 
 ## Local Domains
 
@@ -154,10 +101,9 @@ devplane hosts
 
 The command updates the DevPlane-managed block in `/etc/hosts` with:
 
-- `argo.localhost`
-- `portal.localhost`
-- `vault.localhost`
-- `grafana.localhost`
+- `argo.devplane`
+- `vault.devplane`
+- `grafana.devplane`
 
 ## Useful Commands
 

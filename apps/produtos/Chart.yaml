@@ -1,9 +1,0 @@
-apiVersion: v2
-name: produtos
-description: DevPlane Produtos application wrapper.
-type: application
-version: 0.1.0
-dependencies:
-  - name: devplane-application
-    version: 0.1.0
-    repository: file://../../charts/apps/application
