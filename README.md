@@ -47,6 +47,18 @@ devplane install-prereqs
 
 `install-prereqs` e idempotente: se `git`, `make`, `docker`, `kubectl`, `helm` ou `kind` ja existirem, ele ignora.
 
+Para instalar como pacote a partir do GitHub, incluindo a skill do Codex:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gleydsoncavalcanti/devplane/main/packaging/install.sh | bash
+```
+
+Isso instala:
+
+- CLI `devplane` em `~/.local/bin`;
+- skill em `~/.codex/skills/devplane`;
+- repo em `~/.devplane/devplane`.
+
 ## Subir Plataforma Local
 
 ```bash

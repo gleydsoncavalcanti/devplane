@@ -54,6 +54,14 @@ make cluster-workloads
 make cluster-remove NAME=runtime
 ```
 
+Package install for users:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gleydsoncavalcanti/devplane/main/packaging/install.sh | bash
+```
+
+This installs the CLI and copies this skill to `~/.codex/skills/devplane`.
+
 ## Safety Rules
 
 - Confirm with the user before changing a live cluster, editing `/etc/hosts`, or deleting resources.
