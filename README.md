@@ -6,10 +6,7 @@ DevPlane e uma base local de plataforma para desenvolvimento em kind/local, empa
 
 O DevPlane e autocontido: os charts Helm ficam neste repositorio em `charts/`, e o ArgoCD aplica tudo por ApplicationSets.
 
-Os repositorios abaixo continuam existindo no GitHub como origem historica/espelho dos charts, mas nao sao mais obrigatorios para usar o DevPlane:
-
-- `git@github.com:gleydsoncavalcanti/addons.git`
-- `git@github.com:gleydsoncavalcanti/observability-charts.git`
+![DevPlane flow](docs/assets/devplane-flow.svg)
 
 ## Estrutura
 
