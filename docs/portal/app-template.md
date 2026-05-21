@@ -6,20 +6,20 @@ The application chart lives at:
 charts/apps/application
 ```
 
-The portal will use this chart to create application directories in the local
-DevPlane installation. A generated app should contain a values file based on one
-of the portal templates:
+The portal uses this chart to create application directories in the local
+DevPlane installation. A generated app contains a wrapper chart, a values file,
+and an ArgoCD `Application` manifest.
 
 ```text
-examples/apps/produtos/values.yaml
-examples/apps/contabilidade/values.yaml
-examples/apps/logistica/values.yaml
+apps/produtos/
+apps/contabilidade/
+apps/logistica/
 ```
 
 ## Flow
 
 ```text
-Portal selection -> generated app values -> ArgoCD Application -> application chart rollout
+Portal selection -> local app directory -> kubectl apply application.yaml -> ArgoCD rollout
 ```
 
 The generated values define:
@@ -29,6 +29,20 @@ The generated values define:
 - Postgres database settings;
 - observability toggles for logs, metrics, and traces;
 - observability datastores: Loki, Mimir, and Tempo.
+
+The CLI command used by the portal is:
+
+```bash
+devplane app create produtos
+devplane app create contabilidade
+devplane app create logistica
+```
+
+It copies the selected app into `local/apps/<name>/` and applies:
+
+```text
+local/apps/<name>/application.yaml
+```
 
 ## Telemetry
 

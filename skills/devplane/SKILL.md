@@ -36,6 +36,7 @@ Run from the repository root:
 ./scripts/devplane cluster add runtime
 ./scripts/devplane cluster workloads
 ./scripts/devplane cluster remove runtime
+./scripts/devplane app create produtos
 ```
 
 Make targets are equivalent:
@@ -134,6 +135,27 @@ Grafana, Loki, Tempo, and Mimir come from `charts/observability`. OpenTelemetry 
 For addon changes, read `references/addon-contract.md`.
 
 Keep addon implementation in packaged Helm charts under `charts/`. ApplicationSets define where those charts are applied.
+
+## App Templates
+
+The portal uses `charts/apps/application` as the reusable rollout chart.
+
+Packaged app templates live in:
+
+```text
+apps/produtos
+apps/contabilidade
+apps/logistica
+```
+
+Use:
+
+```bash
+./scripts/devplane app create produtos
+```
+
+The command copies the selected app into `local/apps/<name>/` and applies its
+ArgoCD `application.yaml`.
 
 ## Future Modules
 

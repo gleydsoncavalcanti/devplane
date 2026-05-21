@@ -135,9 +135,11 @@ data:
           </section>
           <section class="options">
             <strong>Next portal action</strong>
-            Generate a local app values file, select logs, metrics and traces,
-            choose Loki, Mimir and Tempo as datastores, and let ArgoCD apply the
-            packaged application chart.
+            Run <code>devplane app create produtos</code>,
+            <code>devplane app create contabilidade</code>, or
+            <code>devplane app create logistica</code>. The portal action will
+            generate a local app directory, create the values file, and apply
+            the ArgoCD Application that rolls out the packaged application chart.
           </section>
         </main>
       </body>

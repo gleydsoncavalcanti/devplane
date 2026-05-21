@@ -41,9 +41,9 @@ spec:
             - name: OTEL_SERVICE_NAME
               value: {{ .Values.app.name | quote }}
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: {{ .Values.observability.otlp.endpoint | quote }}
+              value: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
-              value: {{ .Values.observability.otlp.protocol | quote }}
+              value: "http/protobuf"
             - name: DEVPLANE_OBSERVABILITY_LOGS
               value: {{ .Values.observability.logs.enabled | quote }}
             - name: DEVPLANE_OBSERVABILITY_METRICS

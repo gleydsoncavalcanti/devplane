@@ -125,6 +125,23 @@ Initial templates are available for:
 Each generated app can choose Postgres settings and observability options for
 logs, metrics, traces, and datastores.
 
+Packaged app templates are available in:
+
+```text
+apps/produtos
+apps/contabilidade
+apps/logistica
+```
+
+The portal workflow is backed by:
+
+```bash
+devplane app create produtos
+```
+
+This creates a local app directory and applies the generated ArgoCD
+`application.yaml`.
+
 ## Local Domains
 
 ```bash
