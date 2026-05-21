@@ -1,56 +1,50 @@
 # Platform Cluster
 
-Configuracao do cluster principal da DevPlane. Aqui ficam os componentes de controle da plataforma, como ArgoCD, ingress, Vault, External Secrets e Kyverno.
+Configuration for the single local DevPlane kind cluster.
+
+The cluster has one control-plane node and two worker nodes. Workers are labeled
+with `devplane.io/node-pool=addons`, and packaged addons use that label so they
+do not run on the control-plane.
 
 ## Addons
 
-Os addons de plataforma nao ficam neste diretorio. Eles sao charts Helm empacotados em:
+Addons are not stored under this directory. They are packaged Helm charts in:
 
 ```text
 charts/platform/
+charts/agents/
+charts/observability/
 ```
 
-O ApplicationSet `gitops/applicationsets/platform-addons.yaml` reconcilia:
+The ApplicationSets reconcile:
 
-- `ingress-nginx`
-- `argocd`
-- `portal`
-- `vault`
-- `external-secrets`
-- `kyverno`
+- platform: `ingress-nginx`, `argocd`, `vault`, `external-secrets`, and `kyverno`;
+- agents: `opentelemetry-collector` and `vector`;
+- observability: `grafana`, `loki`, `tempo`, and `mimir`.
 
-KEDA e Karpenter foram deixados fora da instalacao local atual. Karpenter nao agrega valor em kind/local, e KEDA sera incluido futuramente junto com workloads event-driven/autoscaling.
+## Install
 
-## Instalacao
-
-Crie o cluster kind com portas 80/443 mapeadas para o host:
-
-```bash
-kind create cluster --config clusters/platform/kind-config.yaml
-```
-
-Use o script na raiz do repositorio para criar o cluster, fazer bootstrap de `ingress-nginx` e `argocd`, e aplicar os ApplicationSets:
+Use the script from the repository root to create the cluster, bootstrap `ingress-nginx` and `argocd`, and apply the ApplicationSets:
 
 ```bash
 make up
 ```
 
-Depois do bootstrap inicial, o ArgoCD assume a reconciliacao dos addons de plataforma usando os charts empacotados no proprio DevPlane.
+After the initial bootstrap, ArgoCD reconciles the packaged charts from this repository.
 
-## Dominios
+## Domains
 
-- ArgoCD: `http://argo.localhost`
-- Portal: `http://portal.localhost`
-- Vault: `http://vault.localhost`
-- Grafana: `http://grafana.localhost`
+- ArgoCD: `http://argo.devplane`
+- Vault: `http://vault.devplane`
+- Grafana: `http://grafana.devplane`
 
-Atualize o `/etc/hosts`:
+Update `/etc/hosts`:
 
 ```bash
 make hosts
 ```
 
-Se precisar forcar o IP:
+If you need to force the IP:
 
 ```bash
 INGRESS_HOST_IP=127.0.0.1 make hosts

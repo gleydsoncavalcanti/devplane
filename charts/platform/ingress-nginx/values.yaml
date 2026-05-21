@@ -3,6 +3,8 @@ ingress-nginx:
     kind: DaemonSet
     ingressClass: nginx
     watchIngressWithoutClass: false
+    nodeSelector:
+      devplane.io/node-pool: addons
 
     ingressClassResource:
       name: nginx
@@ -22,6 +24,9 @@ ingress-nginx:
 
     admissionWebhooks:
       enabled: true
+      patch:
+        nodeSelector:
+          devplane.io/node-pool: addons
 
     metrics:
       enabled: false

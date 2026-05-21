@@ -1,6 +1,6 @@
 apiVersion: v2
 name: devplane-vector
-description: DevPlane Vector wrapper chart for workload cluster log collection.
+description: DevPlane Vector wrapper chart for local telemetry routing.
 type: application
 version: 0.1.0
 appVersion: "0.50.0"

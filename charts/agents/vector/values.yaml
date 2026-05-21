@@ -1,5 +1,7 @@
 vector:
   role: Agent
+  nodeSelector:
+    devplane.io/node-pool: addons
   service:
     enabled: true
     ports:
@@ -9,8 +11,6 @@ vector:
       - name: otlp-http
         port: 4318
         protocol: TCP
-  nodeSelector:
-    devplane.io/node-group: observability
   customConfig:
     data_dir: /vector-data-dir
     sources:

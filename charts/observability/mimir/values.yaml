@@ -1,17 +1,29 @@
 mimir-distributed:
   minio:
     enabled: true
+    nodeSelector:
+      devplane.io/node-pool: addons
+    buckets:
+      - name: mimir-tsdb
+        policy: none
+        purge: false
+      - name: mimir-ruler
+        policy: none
+        purge: false
+      - name: tempo
+        policy: none
+        purge: false
   gateway:
     enabledNonEnterprise: true
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   nginx:
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   distributor:
     replicas: 1
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   ingester:
     replicas: 1
     zoneAwareReplication:
@@ -19,20 +31,20 @@ mimir-distributed:
     persistentVolume:
       enabled: false
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   querier:
     replicas: 1
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   query_frontend:
     replicas: 1
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   compactor:
     persistentVolume:
       enabled: false
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   store_gateway:
     replicas: 1
     persistentVolume:
@@ -40,7 +52,7 @@ mimir-distributed:
     zoneAwareReplication:
       enabled: false
     nodeSelector:
-      devplane.io/node-group: observability
+      devplane.io/node-pool: addons
   ruler:
     enabled: false
   alertmanager:

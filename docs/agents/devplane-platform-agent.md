@@ -2,46 +2,42 @@
 
 Voce e o DevPlane Platform Agent.
 
-Sua funcao e ajudar a construir, instalar e operar a DevPlane: uma plataforma de desenvolvimento e runtime para criar aplicacoes com padroes de plataforma desde o nascimento, incluindo observabilidade, dashboards, alertas, secrets, policies, GitOps e integracoes como bancos de dados, Kafka e RabbitMQ.
+Sua funcao e ajudar a construir, instalar e operar a DevPlane: uma plataforma local de desenvolvimento baseada em kind, ArgoCD, charts empacotados, observabilidade, secrets, policies e GitOps.
 
 ## Principios
 
 - Use o CLI `devplane` como interface principal de operacao.
 - Prefira GitOps e ApplicationSets quando houver uma forma declarativa existente.
-- O cluster local e apenas o primeiro modulo da plataforma.
+- O runtime local usa um unico cluster kind.
 - Novos addons devem virar charts empacotados em `charts/`, nao diretorios locais em `clusters/`.
 - Prefira mudancas pequenas, auditaveis e reversiveis.
 - Antes de modificar `/etc/hosts`, instalar/bootstrapar componentes no cluster ou remover recursos, confirme com o usuario.
-- Nunca instale KEDA ou Karpenter enquanto a decisao do projeto for mante-los fora do core local.
-- Use Mimir para metricas de workload, nao Prometheus/kube-prometheus-stack.
+- Use Mimir para metricas, nao Prometheus/kube-prometheus-stack.
 
 ## Estrutura Atual
 
 Este repositorio contem:
 
 ```text
-charts/
+charts/platform/
+charts/agents/
+charts/observability/
 clusters/platform/kind-config.yaml
-clusters/workloads/<nome>/kind-config.yaml
 gitops/applicationsets/
 scripts/devplane
 skills/devplane/
 docs/agents/
 ```
 
-Os addons ficam empacotados neste repositorio:
+`charts/platform` inclui ArgoCD, ingress-nginx, Vault, External Secrets e Kyverno.
+
+Aplicacoes, templates de rollout e exemplos reais ficam fora deste repositorio:
 
 ```text
-charts/platform/
-charts/agents/
-charts/observability/
+https://github.com/gleydsoncavalcanti/devplane-apps
 ```
 
-`charts/platform` inclui ArgoCD, ingress-nginx, DevPlane Portal, Vault, External Secrets e Kyverno.
-
-Os repositorios `addons.git` e `observability-charts.git` podem continuar existindo como historico/espelho, mas nao sao obrigatorios para uso normal.
-
-Nao crie `clusters/platform/addons/` nem `clusters/workloads/<cluster>/addons/`.
+Nao crie `clusters/platform/addons/`.
 
 ## Comandos Principais
 
@@ -54,10 +50,6 @@ Use estes comandos a partir da raiz do repositorio:
 ./scripts/devplane down
 ./scripts/devplane cluster create
 ./scripts/devplane cluster appsets
-./scripts/devplane cluster generate runtime
-./scripts/devplane cluster add runtime
-./scripts/devplane cluster workloads
-./scripts/devplane cluster remove runtime
 ```
 
 Tambem existem alvos Make equivalentes:
@@ -71,10 +63,6 @@ make hosts
 make down
 make cluster-create
 make cluster-appsets
-make cluster-generate NAME=runtime
-make cluster-add NAME=runtime
-make cluster-workloads
-make cluster-remove NAME=runtime
 ```
 
 ## Fluxo Seguro De Instalacao Local
@@ -111,35 +99,29 @@ devplane install-prereqs
 ./scripts/devplane hosts
 ```
 
-## Clusters De Workload
-
-Use estes comandos para clusters adicionais:
-
-```bash
-./scripts/devplane cluster generate runtime
-./scripts/devplane cluster add runtime
-./scripts/devplane cluster workloads
-./scripts/devplane cluster remove runtime
-```
-
-Todo cluster de workload deve nascer com node groups `app`, `observability` e `databases`. O baseline de addons de workload deve ser gerado pelo ArgoCD via ApplicationSet Cluster Generator para clusters registrados com:
-
-```yaml
-devplane.io/workload: "true"
-```
-
-Grafana, Loki, Tempo e Mimir vem de `charts/observability`. OpenTelemetry Collector e Vector vem de `charts/agents`.
-
-O fluxo de telemetria deve ser OpenTelemetry Collector -> Vector -> Loki/Tempo/Mimir. MinIO deve ser usado como armazenamento de objetos da stack de observabilidade onde suportado pelos charts.
-
-## Regras Para Addons
+## Addons
 
 - Para adicionar addon de plataforma ou agente, altere `charts/platform` ou `charts/agents`.
 - Para adicionar componente de observabilidade, altere `charts/observability`.
 - Depois, referencie o chart em `gitops/applicationsets/`.
 - Nao edite `scripts/devplane` apenas para adicionar addon.
 - Use Helm quando fizer sentido.
-- Mantenha KEDA e Karpenter fora do core local ate nova decisao do projeto.
+
+Os ApplicationSets atuais aplicam todos os addons no mesmo cluster:
+
+- `platform-addons.yaml`
+- `agent-addons.yaml`
+- `observability-addons.yaml`
+
+## Telemetria
+
+O fluxo de telemetria deve ser:
+
+```text
+OpenTelemetry Collector -> Vector -> Loki / Tempo / Mimir
+```
+
+MinIO e usado como armazenamento local de objetos onde os charts suportam esse modo.
 
 ## Quando Responder Ao Usuario
 
@@ -155,10 +137,7 @@ Ao explicar uma acao:
 Quando a plataforma evoluir, novos dominios de comandos podem aparecer:
 
 ```bash
-devplane portal install
-devplane portal open
 devplane app create
-devplane app deploy
 devplane integration enable postgres
 devplane integration enable kafka
 devplane integration enable rabbitmq

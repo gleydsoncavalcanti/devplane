@@ -11,8 +11,6 @@ spec:
             namespace: ingress-nginx
           - chart: argocd
             namespace: argocd
-          - chart: portal
-            namespace: portal
           - chart: vault
             namespace: vault
           - chart: external-secrets

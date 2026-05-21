@@ -1,17 +1,14 @@
 # DevPlane Addon Contract
 
-Addons are packaged Helm charts inside this repository.
+Addons are packaged Helm charts inside this repository and reconciled into the single local kind cluster by ArgoCD.
 
 ## Chart Layout
 
 ```text
 charts/
-├── apps/
-│   └── application/
 ├── platform/
 │   ├── argocd/
 │   ├── ingress-nginx/
-│   ├── portal/
 │   ├── vault/
 │   ├── external-secrets/
 │   └── kyverno/
@@ -29,7 +26,6 @@ Do not create:
 
 ```text
 clusters/platform/addons/<addon>/
-clusters/workloads/<cluster>/addons/<addon>/
 ```
 
 ## Adding Or Changing An Addon
@@ -53,72 +49,42 @@ Do not edit `scripts/devplane` just to add a new addon.
 
 ## Platform Addons
 
-`gitops/applicationsets/platform-addons.yaml` reconciles platform addons into the platform cluster:
+`gitops/applicationsets/platform-addons.yaml` reconciles:
 
 - `ingress-nginx`
 - `argocd`
-- `portal`
 - `vault`
 - `external-secrets`
 - `kyverno`
 
-The local bootstrap still installs `ingress-nginx` and `argocd` first so ArgoCD can start and then reconcile the declared platform state, including itself.
+The local bootstrap installs `ingress-nginx` and `argocd` first so ArgoCD can start and then reconcile the declared platform state, including itself.
 
-## Workload Baseline
+## Agent And Observability Addons
 
-Workload clusters are generated under:
+`gitops/applicationsets/agent-addons.yaml` reconciles:
 
-```text
-clusters/workloads/<name>/
-```
+- `opentelemetry-collector`
+- `vector`
 
-They start with kind node groups simulated as worker labels:
+`gitops/applicationsets/observability-addons.yaml` reconciles:
 
-- `devplane.io/node-group=app`
-- `devplane.io/node-group=observability`
-- `devplane.io/node-group=databases`
+- `grafana`
+- `loki`
+- `tempo`
+- `mimir`
 
-Workload addon ApplicationSets target clusters labeled:
-
-```yaml
-devplane.io/workload: "true"
-```
-
-The baseline is:
-
-- Grafana
-- Loki
-- Tempo
-- Mimir
-- OpenTelemetry Collector
-- Vector
-
-## Application Template Contract
-
-The reusable application chart lives at:
+All of them target the in-cluster Kubernetes API:
 
 ```text
-charts/apps/application
+https://kubernetes.default.svc
 ```
 
-Packaged app templates live at:
+## Application Templates
+
+Application chart templates and sample apps live outside this repo:
 
 ```text
-apps/produtos
-apps/contabilidade
-apps/logistica
-```
-
-Each packaged app contains:
-
-- `Chart.yaml`: wrapper chart depending on `charts/apps/application`.
-- `values.yaml`: app-specific values for image, Postgres, and observability.
-- `application.yaml`: ArgoCD Application applied by the portal/CLI.
-
-The portal-backed command is:
-
-```bash
-./scripts/devplane app create <template>
+https://github.com/gleydsoncavalcanti/devplane-apps
 ```
 
 ## Telemetry Contract
@@ -134,6 +100,6 @@ OpenTelemetry Collector -> Vector -> Loki / Tempo / Mimir
 - Vector sends logs to Loki.
 - Vector sends traces to Tempo.
 - Vector sends metrics to Mimir using Prometheus remote write.
-- MinIO is used as object storage for the observability stack where supported.
+- MinIO is enabled by the Loki and Mimir charts for local object storage.
 
-Use Mimir for metrics. Do not reintroduce Prometheus/kube-prometheus-stack into the workload baseline.
+Use Mimir for metrics. Do not reintroduce Prometheus/kube-prometheus-stack into the local baseline.

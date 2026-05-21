@@ -1,15 +1,23 @@
 kyverno:
   admissionController:
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   backgroundController:
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   cleanupController:
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   reportsController:
     replicas: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   crds:
     install: true

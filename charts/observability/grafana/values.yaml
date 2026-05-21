@@ -6,10 +6,10 @@ grafana:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - grafana.localhost
+      - grafana.devplane
     path: /
   nodeSelector:
-    devplane.io/node-group: observability
+    devplane.io/node-pool: addons
   datasources:
     datasources.yaml:
       apiVersion: 1

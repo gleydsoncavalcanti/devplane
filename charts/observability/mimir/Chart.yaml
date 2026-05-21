@@ -1,6 +1,6 @@
 apiVersion: v2
 name: devplane-mimir
-description: DevPlane Mimir wrapper chart for workload cluster metrics.
+description: DevPlane Mimir wrapper chart for local metrics.
 type: application
 version: 0.1.0
 appVersion: "2.17.0"
