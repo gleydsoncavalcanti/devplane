@@ -6,9 +6,12 @@ Addons are packaged Helm charts inside this repository.
 
 ```text
 charts/
+├── apps/
+│   └── application/
 ├── platform/
 │   ├── argocd/
 │   ├── ingress-nginx/
+│   ├── portal/
 │   ├── vault/
 │   ├── external-secrets/
 │   └── kyverno/
@@ -54,6 +57,7 @@ Do not edit `scripts/devplane` just to add a new addon.
 
 - `ingress-nginx`
 - `argocd`
+- `portal`
 - `vault`
 - `external-secrets`
 - `kyverno`
@@ -88,6 +92,34 @@ The baseline is:
 - Mimir
 - OpenTelemetry Collector
 - Vector
+
+## Application Template Contract
+
+The reusable application chart lives at:
+
+```text
+charts/apps/application
+```
+
+Packaged app templates live at:
+
+```text
+apps/produtos
+apps/contabilidade
+apps/logistica
+```
+
+Each packaged app contains:
+
+- `Chart.yaml`: wrapper chart depending on `charts/apps/application`.
+- `values.yaml`: app-specific values for image, Postgres, and observability.
+- `application.yaml`: ArgoCD Application applied by the portal/CLI.
+
+The portal-backed command is:
+
+```bash
+./scripts/devplane app create <template>
+```
 
 ## Telemetry Contract
 

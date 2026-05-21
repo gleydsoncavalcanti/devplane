@@ -25,7 +25,8 @@ KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-devplane}"
 WORKLOAD_CLUSTERS_DIR="${WORKLOAD_CLUSTERS_DIR:-${ROOT_DIR}/clusters/workloads}"
 BOOTSTRAP_ADDONS="${BOOTSTRAP_ADDONS:-ingress-nginx,argocd}"
 APPLICATIONSETS_DIR="${APPLICATIONSETS_DIR:-${ROOT_DIR}/gitops/applicationsets}"
-PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argo.devplane vault.devplane grafana.devplane}"
+PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argo.devplane portal.devplane vault.devplane grafana.devplane}"
+DEVPLANE_APPS_DIR="${DEVPLANE_APPS_DIR:-${ROOT_DIR}/local/apps}"
 
 usage() {
   cat <<'EOF'
@@ -42,6 +43,7 @@ Commands:
   down                  Delete the local kind cluster
   status                Show local environment status
   hosts                 Add platform domains to /etc/hosts
+  app create <template> Create and apply an app from a packaged template
 
 Cluster commands:
   cluster add <name>    Create a workload cluster for ArgoCD-managed addons
@@ -63,6 +65,7 @@ Environment:
   BOOTSTRAP_ADDONS      Comma-separated addons installed by up. Defaults to ingress-nginx,argocd.
   APPLICATIONSETS_DIR   Optional ApplicationSets directory. Defaults to gitops/applicationsets.
   PLATFORM_DOMAINS      Space-separated domains managed by hosts.
+  DEVPLANE_APPS_DIR     Local directory for generated apps. Defaults to local/apps.
 EOF
 }
 
@@ -518,6 +521,54 @@ configure_hosts() {
   done
 }
 
+create_app() {
+  require_command kubectl
+
+  local template="${1:-}"
+
+  if [[ -z "${template}" ]]; then
+    echo "App template is required." >&2
+    echo "Usage: ./scripts/devplane app create <produtos|contabilidade|logistica>" >&2
+    exit 1
+  fi
+
+  local source_dir="${ROOT_DIR}/apps/${template}"
+  local target_dir="${DEVPLANE_APPS_DIR}/${template}"
+
+  if [[ ! -d "${source_dir}" ]]; then
+    echo "Unknown app template: ${template}" >&2
+    echo "Available templates: produtos, contabilidade, logistica" >&2
+    exit 1
+  fi
+
+  mkdir -p "${DEVPLANE_APPS_DIR}"
+  rm -rf "${target_dir}"
+  cp -R "${source_dir}" "${target_dir}"
+
+  local context
+  context="${KUBECONFIG_CONTEXT:-$(kind_context)}"
+
+  echo "Generated app directory: ${target_dir}"
+  echo "Applying ArgoCD application: ${target_dir}/application.yaml"
+  kubectl apply --context "${context}" -f "${target_dir}/application.yaml"
+}
+
+run_app_command() {
+  local command="${1:-help}"
+  local target="${2:-}"
+
+  case "${command}" in
+    create)
+      create_app "${target}"
+      ;;
+    *)
+      echo "Unknown app command: ${command}" >&2
+      echo "Usage: ./scripts/devplane app create <produtos|contabilidade|logistica>" >&2
+      exit 1
+      ;;
+  esac
+}
+
 run_cluster_command() {
   local command="${1:-help}"
   local target="${2:-}"
@@ -586,6 +637,10 @@ main() {
     cluster)
       shift
       run_cluster_command "$@"
+      ;;
+    app)
+      shift
+      run_app_command "$@"
       ;;
     *)
       echo "Unknown command: ${command}" >&2

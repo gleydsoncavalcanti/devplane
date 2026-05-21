@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "devplane-application.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "devplane-application.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "devplane-application.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: app

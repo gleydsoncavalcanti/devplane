@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: contabilidade
+  namespace: argocd
+  labels:
+    devplane.io/app-template: contabilidade
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/gleydsoncavalcanti/devplane.git
+    targetRevision: main
+    path: apps/contabilidade
+    helm:
+      releaseName: contabilidade
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: contabilidade
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

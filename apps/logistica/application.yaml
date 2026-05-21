@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: logistica
+  namespace: argocd
+  labels:
+    devplane.io/app-template: logistica
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/gleydsoncavalcanti/devplane.git
+    targetRevision: main
+    path: apps/logistica
+    helm:
+      releaseName: logistica
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: logistica
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

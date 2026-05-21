@@ -12,9 +12,10 @@ The implemented local module is `cluster`. Prefer the CLI, packaged Helm charts,
 ## Repositories
 
 - This repo owns local kind definitions, ApplicationSets, docs, skills, the DevPlane CLI, and packaged Helm charts.
-- `charts/platform` owns ArgoCD, ingress-nginx, Vault, External Secrets, and Kyverno.
+- `charts/platform` owns ArgoCD, ingress-nginx, DevPlane Portal, Vault, External Secrets, and Kyverno.
 - `charts/agents` owns OpenTelemetry Collector and Vector.
 - `charts/observability` owns Grafana, Loki, Tempo, and Mimir.
+- `charts/apps/application` owns the app rollout template used by the portal.
 - The existing GitHub repos `addons.git` and `observability-charts.git` may remain as mirrors/history, but they are not required for normal DevPlane usage.
 
 Do not add addon directories under `clusters/platform/addons` or `clusters/workloads/<name>/addons`.
@@ -35,6 +36,7 @@ Run from the repository root:
 ./scripts/devplane cluster add runtime
 ./scripts/devplane cluster workloads
 ./scripts/devplane cluster remove runtime
+./scripts/devplane app create produtos
 ```
 
 Make targets are equivalent:
@@ -133,6 +135,27 @@ Grafana, Loki, Tempo, and Mimir come from `charts/observability`. OpenTelemetry 
 For addon changes, read `references/addon-contract.md`.
 
 Keep addon implementation in packaged Helm charts under `charts/`. ApplicationSets define where those charts are applied.
+
+## App Templates
+
+The portal uses `charts/apps/application` as the reusable rollout chart.
+
+Packaged app templates live in:
+
+```text
+apps/produtos
+apps/contabilidade
+apps/logistica
+```
+
+Use:
+
+```bash
+./scripts/devplane app create produtos
+```
+
+The command copies the selected app into `local/apps/<name>/` and applies its
+ArgoCD `application.yaml`.
 
 ## Future Modules
 
