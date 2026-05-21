@@ -1,5 +1,7 @@
 opentelemetry-collector:
   mode: daemonset
+  nodeSelector:
+    devplane.io/node-pool: addons
   image:
     repository: otel/opentelemetry-collector-contrib
   presets:
@@ -26,5 +28,3 @@ opentelemetry-collector:
         traces:
           exporters:
             - otlp/vector
-  nodeSelector:
-    devplane.io/node-group: observability

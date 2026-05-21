@@ -9,7 +9,7 @@ grafana:
       - grafana.localhost
     path: /
   nodeSelector:
-    devplane.io/node-group: observability
+    devplane.io/node-pool: addons
   datasources:
     datasources.yaml:
       apiVersion: 1

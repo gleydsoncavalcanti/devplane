@@ -1,6 +1,0 @@
-dependencies:
-- name: devplane-application
-  repository: file://../../charts/apps/application
-  version: 0.1.0
-digest: sha256:5e921de4717e9ce41e92748fb0c7473be520a8cf0d74f8605aa908915535fcec
-generated: "2026-05-21T11:41:47.500056873-03:00"

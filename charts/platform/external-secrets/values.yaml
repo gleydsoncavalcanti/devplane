@@ -2,12 +2,18 @@ external-secrets:
   installCRDs: true
 
   replicaCount: 1
+  nodeSelector:
+    devplane.io/node-pool: addons
 
   webhook:
     replicaCount: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   certController:
     replicaCount: 1
+    nodeSelector:
+      devplane.io/node-pool: addons
 
   serviceMonitor:
     enabled: false

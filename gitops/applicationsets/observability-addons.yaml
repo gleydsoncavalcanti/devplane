@@ -1,25 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: workload-observability-charts
+  name: observability-addons
   namespace: argocd
 spec:
   generators:
-    - matrix:
-        generators:
-          - clusters:
-              selector:
-                matchLabels:
-                  devplane.io/workload: "true"
-          - list:
-              elements:
-                - chart: mimir
-                - chart: loki
-                - chart: tempo
-                - chart: grafana
+    - list:
+        elements:
+          - chart: mimir
+          - chart: loki
+          - chart: tempo
+          - chart: grafana
   template:
     metadata:
-      name: '{{name}}-{{chart}}'
+      name: 'observability-{{chart}}'
     spec:
       project: default
       source:
@@ -29,7 +23,7 @@ spec:
         helm:
           releaseName: '{{chart}}'
       destination:
-        server: '{{server}}'
+        server: https://kubernetes.default.svc
         namespace: observability
       syncPolicy:
         automated:
