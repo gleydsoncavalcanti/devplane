@@ -4,7 +4,7 @@ app:
   replicaCount: 1
 
 image:
-  repository: ghcr.io/gleydsoncavalcanti/devplane-sample-logistica
+  repository: ghcr.io/gleydsoncavalcanti/devplane/sample-logistica
   tag: latest
 
 postgres:

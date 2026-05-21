@@ -49,3 +49,32 @@ local/apps/<name>/application.yaml
 Apps are born with OpenTelemetry environment variables pointing at the workload
 OpenTelemetry Collector. The collector forwards telemetry to Vector, and Vector
 routes data to Loki, Mimir, and Tempo.
+
+## Sample APIs
+
+The packaged examples are real FastAPI services with Postgres access and
+OpenTelemetry auto-instrumentation.
+
+Produtos:
+
+```bash
+curl http://produtos.devplane/health
+curl http://produtos.devplane/produtos
+curl -X POST "http://produtos.devplane/produtos/NB-DEV-001/entrada?quantidade=2"
+```
+
+Contabilidade:
+
+```bash
+curl http://contabilidade.devplane/health
+curl http://contabilidade.devplane/balanco
+curl -X POST "http://contabilidade.devplane/lancamentos?conta=receita&descricao=Consultoria&valor=1200"
+```
+
+Logistica:
+
+```bash
+curl http://logistica.devplane/health
+curl http://logistica.devplane/entregas
+curl -X POST "http://logistica.devplane/entregas/ENT-1001/status?status=entregue"
+```

@@ -142,6 +142,10 @@ devplane app create produtos
 This creates a local app directory and applies the generated ArgoCD
 `application.yaml`.
 
+The sample apps are real FastAPI services with Postgres access and
+OpenTelemetry auto-instrumentation, published by the `sample-apps` GitHub
+Actions workflow to GHCR.
+
 ## Local Domains
 
 ```bash

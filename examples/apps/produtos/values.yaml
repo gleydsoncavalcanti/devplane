@@ -4,7 +4,7 @@ app:
   replicaCount: 1
 
 image:
-  repository: ghcr.io/gleydsoncavalcanti/devplane-sample-produtos
+  repository: ghcr.io/gleydsoncavalcanti/devplane/sample-produtos
   tag: latest
 
 postgres:
