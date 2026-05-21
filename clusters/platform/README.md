@@ -34,9 +34,9 @@ After the initial bootstrap, ArgoCD reconciles the packaged charts from this rep
 
 ## Domains
 
-- ArgoCD: `http://argo.devplane`
-- Vault: `http://vault.devplane`
-- Grafana: `http://grafana.devplane`
+- ArgoCD: `http://argo.localhost`
+- Vault: `http://vault.localhost`
+- Grafana: `http://grafana.localhost`
 
 Update `/etc/hosts`:
 

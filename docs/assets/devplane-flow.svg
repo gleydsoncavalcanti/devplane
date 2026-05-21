@@ -34,7 +34,7 @@
   <text x="344" y="194" class="small">single local cluster</text>
   <text x="344" y="214" class="small">ingress-nginx</text>
   <text x="344" y="234" class="small">ArgoCD bootstrap</text>
-  <text x="344" y="254" class="small">argo.devplane</text>
+  <text x="344" y="254" class="small">argo.localhost</text>
 
   <rect x="608" y="130" width="230" height="168" class="box core"/>
   <text x="642" y="168" class="label">ApplicationSets</text>

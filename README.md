@@ -35,8 +35,9 @@ docs/
 
 Application examples and rollout templates live in a separate repository:
 
-[devplane-apps](https://github.com/gleydsoncavalcanti/devplane-apps)
-
+```text
+https://github.com/gleydsoncavalcanti/devplane-apps
+```
 
 ## Install The CLI And Prerequisites
 
@@ -100,9 +101,9 @@ devplane hosts
 
 The command updates the DevPlane-managed block in `/etc/hosts` with:
 
-- `argo.devplane`
-- `vault.devplane`
-- `grafana.devplane`
+- `argo.localhost`
+- `vault.localhost`
+- `grafana.localhost`
 
 ## Useful Commands
 

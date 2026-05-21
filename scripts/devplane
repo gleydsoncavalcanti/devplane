@@ -24,7 +24,7 @@ CLUSTER_CONFIG="${CLUSTER_CONFIG:-${DEFAULT_CLUSTER_CONFIG}}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-devplane}"
 BOOTSTRAP_ADDONS="${BOOTSTRAP_ADDONS:-ingress-nginx,argocd}"
 APPLICATIONSETS_DIR="${APPLICATIONSETS_DIR:-${ROOT_DIR}/gitops/applicationsets}"
-PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argo.devplane vault.devplane grafana.devplane}"
+PLATFORM_DOMAINS="${PLATFORM_DOMAINS:-argo.localhost vault.localhost grafana.localhost}"
 
 usage() {
   cat <<'EOF'
