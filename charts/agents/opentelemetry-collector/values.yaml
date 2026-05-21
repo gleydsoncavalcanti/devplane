@@ -4,6 +4,12 @@ opentelemetry-collector:
     devplane.io/node-pool: addons
   image:
     repository: otel/opentelemetry-collector-contrib
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 384Mi
   presets:
     logsCollection:
       enabled: true

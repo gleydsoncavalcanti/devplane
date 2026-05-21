@@ -3,6 +3,12 @@ mimir-distributed:
     enabled: true
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
     buckets:
       - name: mimir-tsdb
         policy: none
@@ -14,16 +20,29 @@ mimir-distributed:
         policy: none
         purge: false
   gateway:
-    enabledNonEnterprise: true
+    enabled: false
+    enabledNonEnterprise: false
     nodeSelector:
       devplane.io/node-pool: addons
   nginx:
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
   distributor:
     replicas: 1
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 384Mi
   ingester:
     replicas: 1
     zoneAwareReplication:
@@ -32,19 +51,47 @@ mimir-distributed:
       enabled: false
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
   querier:
     replicas: 1
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 384Mi
   query_frontend:
     replicas: 1
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 25m
+        memory: 96Mi
+      limits:
+        memory: 256Mi
+  query_scheduler:
+    enabled: false
   compactor:
     persistentVolume:
       enabled: false
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 192Mi
+      limits:
+        memory: 512Mi
+  overrides_exporter:
+    enabled: false
   store_gateway:
     replicas: 1
     persistentVolume:
@@ -53,7 +100,15 @@ mimir-distributed:
       enabled: false
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 192Mi
+      limits:
+        memory: 512Mi
   ruler:
     enabled: false
   alertmanager:
+    enabled: false
+  rollout_operator:
     enabled: false

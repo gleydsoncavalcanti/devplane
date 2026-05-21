@@ -4,6 +4,12 @@ loki:
     enabled: true
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
   loki:
     auth_enabled: false
     schemaConfig:
@@ -33,6 +39,27 @@ loki:
     replicas: 1
     nodeSelector:
       devplane.io/node-pool: addons
+    resources:
+      requests:
+        cpu: 50m
+        memory: 192Mi
+      limits:
+        memory: 512Mi
+  gateway:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+  lokiCanary:
+    enabled: false
+  test:
+    enabled: false
+  chunksCache:
+    enabled: false
+  resultsCache:
+    enabled: false
   read:
     replicas: 0
   write:

@@ -1,7 +1,15 @@
 tempo:
+  replicas: 1
   nodeSelector:
     devplane.io/node-pool: addons
   tempo:
+    memBallastSizeMbs: 128
+    resources:
+      requests:
+        cpu: 50m
+        memory: 192Mi
+      limits:
+        memory: 512Mi
     storage:
       trace:
         backend: s3

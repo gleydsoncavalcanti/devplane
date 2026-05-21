@@ -2,6 +2,12 @@ grafana:
   adminPassword: admin
   service:
     type: ClusterIP
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 384Mi
   ingress:
     enabled: true
     ingressClassName: nginx

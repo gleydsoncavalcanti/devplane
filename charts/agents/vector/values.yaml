@@ -1,7 +1,14 @@
 vector:
-  role: Agent
+  role: Stateless-Aggregator
+  replicas: 1
   nodeSelector:
     devplane.io/node-pool: addons
+  resources:
+    requests:
+      cpu: 50m
+      memory: 96Mi
+    limits:
+      memory: 256Mi
   service:
     enabled: true
     ports:
@@ -14,8 +21,6 @@ vector:
   customConfig:
     data_dir: /vector-data-dir
     sources:
-      kubernetes_logs:
-        type: kubernetes_logs
       otlp:
         type: opentelemetry
         grpc:
@@ -26,9 +31,10 @@ vector:
       loki:
         type: loki
         inputs:
-          - kubernetes_logs
           - otlp.logs
         endpoint: http://loki-gateway.observability.svc.cluster.local
+        labels:
+          source: devplane
         encoding:
           codec: json
       mimir:
