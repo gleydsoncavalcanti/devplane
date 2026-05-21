@@ -38,8 +38,9 @@ Depois do bootstrap inicial, o ArgoCD assume a reconciliacao dos addons de plata
 
 ## Dominios
 
-- ArgoCD: `http://argocd.localhost`
-- Vault: `http://vault.localhost`
+- ArgoCD: `http://argo.devplane`
+- Vault: `http://vault.devplane`
+- Grafana: `http://grafana.devplane`
 
 Atualize o `/etc/hosts`:
 

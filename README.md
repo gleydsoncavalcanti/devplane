@@ -115,8 +115,9 @@ devplane hosts
 
 O comando atualiza o bloco gerenciado do DevPlane em `/etc/hosts` com:
 
-- `argocd.localhost`
-- `vault.localhost`
+- `argo.devplane`
+- `vault.devplane`
+- `grafana.devplane`
 
 ## Comandos Uteis
 

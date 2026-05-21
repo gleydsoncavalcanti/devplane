@@ -2,6 +2,12 @@ grafana:
   adminPassword: admin
   service:
     type: ClusterIP
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - grafana.devplane
+    path: /
   nodeSelector:
     devplane.io/node-group: observability
   datasources:

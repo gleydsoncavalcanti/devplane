@@ -1,6 +1,6 @@
 argo-cd:
   global:
-    domain: argocd.localhost
+    domain: argo.devplane
 
   configs:
     params:
@@ -13,7 +13,7 @@ argo-cd:
       enabled: true
       controller: generic
       ingressClassName: nginx
-      hostname: argocd.localhost
+      hostname: argo.devplane
       path: /
       pathType: Prefix
       tls: false
