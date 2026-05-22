@@ -1,6 +1,8 @@
 mimir-distributed:
   minio:
     enabled: true
+    serviceAccount:
+      name: mimir-minio-sa
     nodeSelector:
       devplane.io/node-pool: addons
     resources:
