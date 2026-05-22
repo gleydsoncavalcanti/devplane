@@ -13,7 +13,7 @@ The implemented local module is `cluster`. Prefer the CLI, packaged Helm charts,
 
 - This repo owns the local kind definition, ApplicationSets, docs, skills, DevPlane CLI, and packaged Helm charts.
 - `charts/platform` owns ArgoCD, ingress-nginx, Vault, External Secrets, and Kyverno.
-- `charts/agents` owns OpenTelemetry Collector and Vector.
+- `charts/agents` owns OpenTelemetry Collector.
 - `charts/observability` owns Grafana, Loki, Tempo, and Mimir.
 - Application examples and the reusable app rollout chart live in `https://github.com/gleydsoncavalcanti/devplane-apps`.
 
@@ -60,7 +60,7 @@ This installs the CLI and copies this skill to `~/.codex/skills/devplane`.
 - Before install/bootstrap, check or state the intended Kubernetes context.
 - Do not hardcode new addons in `scripts/devplane`; add charts under `charts/` and wire them through ApplicationSets.
 - Use Mimir for metrics, not Prometheus/kube-prometheus-stack.
-- Keep telemetry flow as OpenTelemetry Collector -> Vector -> Loki/Tempo/Mimir.
+- Keep telemetry flow as OpenTelemetry Collector agents -> OpenTelemetry Collector gateway -> Loki/Tempo/Mimir.
 
 ## Cluster Workflow
 

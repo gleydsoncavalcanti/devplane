@@ -118,7 +118,7 @@ Os ApplicationSets atuais aplicam todos os addons no mesmo cluster:
 O fluxo de telemetria deve ser:
 
 ```text
-OpenTelemetry Collector -> Vector -> Loki / Tempo / Mimir
+OpenTelemetry Collector agents -> OpenTelemetry Collector gateway -> Loki / Tempo / Mimir
 ```
 
 MinIO e usado como armazenamento local de objetos onde os charts suportam esse modo.

@@ -6,5 +6,10 @@ version: 0.1.0
 appVersion: "0.139.0"
 dependencies:
   - name: opentelemetry-collector
+    alias: opentelemetry-collector-agent
+    version: "0.139.0"
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  - name: opentelemetry-collector
+    alias: opentelemetry-collector-gateway
     version: "0.139.0"
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts

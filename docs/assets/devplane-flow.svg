@@ -51,8 +51,8 @@
 
   <rect x="900" y="204" width="190" height="112" class="box agent"/>
   <text x="938" y="242" class="label">agents</text>
-  <text x="938" y="268" class="small">OpenTelemetry</text>
-  <text x="938" y="288" class="small">Vector</text>
+  <text x="938" y="268" class="small">OTel agents</text>
+  <text x="938" y="288" class="small">OTel gateway</text>
 
   <rect x="900" y="350" width="190" height="112" class="box obs"/>
   <text x="924" y="388" class="label">observability</text>
@@ -71,5 +71,5 @@
   <path class="line" d="M 838 254 L 900 406"/>
   <path class="line" d="M 608 390 L 540 390"/>
 
-  <text x="548" y="332" class="small">OTel -> Vector -> Loki / Tempo / Mimir</text>
+  <text x="548" y="332" class="small">OTel agents -> gateway -> Loki / Tempo / Mimir</text>
 </svg>
