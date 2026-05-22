@@ -13,8 +13,7 @@ charts/
 │   ├── external-secrets/
 │   └── kyverno/
 ├── agents/
-│   ├── opentelemetry-collector/
-│   └── vector/
+│   └── opentelemetry-collector/
 └── observability/
     ├── grafana/
     ├── loki/
@@ -64,7 +63,6 @@ The local bootstrap installs `ingress-nginx` and `argocd` first so ArgoCD can st
 `gitops/applicationsets/agent-addons.yaml` reconciles:
 
 - `opentelemetry-collector`
-- `vector`
 
 `gitops/applicationsets/observability-addons.yaml` reconciles:
 
@@ -92,14 +90,15 @@ https://github.com/gleydsoncavalcanti/devplane-apps
 Telemetry flow:
 
 ```text
-OpenTelemetry Collector -> Vector -> Loki / Tempo / Mimir
+OpenTelemetry Collector agents -> OpenTelemetry Collector gateway -> Loki / Tempo / Mimir
 ```
 
-- OpenTelemetry Collector collects logs, metrics, and traces and exports them to Vector over OTLP.
-- Vector receives OTLP logs, metrics, and traces.
-- Vector sends logs to Loki.
-- Vector sends traces to Tempo.
-- Vector sends metrics to Mimir using Prometheus remote write.
+- OpenTelemetry Collector agents collect pod logs, host metrics, and kubelet metrics on each node.
+- OpenTelemetry Collector agents forward collected telemetry to the gateway over OTLP gRPC.
+- OpenTelemetry Collector gateway receives OTLP logs, metrics, and traces.
+- OpenTelemetry Collector gateway sends logs to Loki using OTLP HTTP.
+- OpenTelemetry Collector gateway sends traces to Tempo using OTLP gRPC.
+- OpenTelemetry Collector gateway sends metrics to Mimir using Prometheus remote write.
 - MinIO is enabled by the Loki and Mimir charts for local object storage.
 
 Use Mimir for metrics. Do not reintroduce Prometheus/kube-prometheus-stack into the local baseline.

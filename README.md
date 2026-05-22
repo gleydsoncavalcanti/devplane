@@ -19,8 +19,7 @@ charts/
 │   ├── external-secrets/
 │   └── kyverno/
 ├── agents/
-│   ├── opentelemetry-collector/
-│   └── vector/
+│   └── opentelemetry-collector/
 └── observability/
     ├── grafana/
     ├── loki/
@@ -73,7 +72,7 @@ The command creates one kind cluster with one control-plane node and two addon w
 After bootstrap, ArgoCD reconciles in the same cluster:
 
 - platform addons: ArgoCD, ingress-nginx, Vault, External Secrets, and Kyverno;
-- agents: OpenTelemetry Collector and Vector;
+- agents: OpenTelemetry Collector;
 - observability stack: Grafana, Loki, Tempo, and Mimir.
 
 ## Telemetry
@@ -81,11 +80,11 @@ After bootstrap, ArgoCD reconciles in the same cluster:
 The default telemetry flow is:
 
 ```text
-OpenTelemetry Collector -> Vector -> Loki / Tempo / Mimir
+OpenTelemetry Collector agents -> OpenTelemetry Collector gateway -> Loki / Tempo / Mimir
 ```
 
-- OpenTelemetry Collector collects logs, metrics, and traces and forwards them to Vector over OTLP.
-- Vector receives logs, metrics, and traces, then sends them to the datastores.
+- OpenTelemetry Collector agents collect pod logs, host metrics, and kubelet metrics on each node.
+- OpenTelemetry Collector gateway receives OTLP logs, metrics, and traces and routes them to the datastores.
 - Loki receives logs.
 - Tempo receives traces.
 - Mimir receives metrics.

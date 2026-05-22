@@ -19,7 +19,7 @@ charts/observability/
 The ApplicationSets reconcile:
 
 - platform: `ingress-nginx`, `argocd`, `vault`, `external-secrets`, and `kyverno`;
-- agents: `opentelemetry-collector` and `vector`;
+- agents: `opentelemetry-collector`;
 - observability: `grafana`, `loki`, `tempo`, and `mimir`.
 
 ## Install

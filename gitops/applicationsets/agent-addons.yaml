@@ -8,7 +8,6 @@ spec:
     - list:
         elements:
           - chart: opentelemetry-collector
-          - chart: vector
   template:
     metadata:
       name: 'agent-{{chart}}'

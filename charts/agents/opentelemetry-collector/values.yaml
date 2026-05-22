@@ -1,7 +1,13 @@
-opentelemetry-collector:
+opentelemetry-collector-agent:
+  fullnameOverride: opentelemetry-collector-agent
   mode: daemonset
-  nodeSelector:
-    devplane.io/node-pool: addons
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
   image:
     repository: otel/opentelemetry-collector-contrib
   resources:
@@ -17,20 +23,165 @@ opentelemetry-collector:
       enabled: true
     kubeletMetrics:
       enabled: true
-  config:
+    kubernetesAttributes:
+      enabled: true
+  service:
+    enabled: false
+  ports:
+    otlp:
+      enabled: false
+    otlp-http:
+      enabled: false
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+    metrics:
+      enabled: true
+  alternateConfig:
+    extensions:
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+    receivers: {}
+    processors:
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
     exporters:
-      otlp/vector:
-        endpoint: vector.observability.svc.cluster.local:4317
+      otlp/gateway:
+        endpoint: opentelemetry-collector-gateway.observability.svc.cluster.local:4317
         tls:
           insecure: true
     service:
+      telemetry:
+        metrics:
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: ${env:MY_POD_IP}
+                    port: 8888
+      extensions:
+        - health_check
       pipelines:
         logs:
+          receivers: []
+          processors:
+            - memory_limiter
+            - batch
           exporters:
-            - otlp/vector
+            - otlp/gateway
         metrics:
+          receivers: []
+          processors:
+            - memory_limiter
+            - batch
           exporters:
-            - otlp/vector
+            - otlp/gateway
+
+opentelemetry-collector-gateway:
+  fullnameOverride: opentelemetry-collector-gateway
+  mode: deployment
+  replicaCount: 1
+  nodeSelector:
+    devplane.io/node-pool: addons
+  image:
+    repository: otel/opentelemetry-collector-contrib
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 384Mi
+  presets:
+    clusterMetrics:
+      enabled: true
+    kubernetesEvents:
+      enabled: true
+    kubernetesAttributes:
+      enabled: true
+  service:
+    enabled: true
+  ports:
+    otlp:
+      enabled: true
+    otlp-http:
+      enabled: true
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+    metrics:
+      enabled: true
+  alternateConfig:
+    extensions:
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+    processors:
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+    exporters:
+      otlphttp/loki:
+        endpoint: http://loki-gateway.observability.svc.cluster.local/otlp
+      prometheusremotewrite/mimir:
+        endpoint: http://mimir-nginx.observability.svc.cluster.local/api/v1/push
+      otlp/tempo:
+        endpoint: tempo.observability.svc.cluster.local:4317
+        tls:
+          insecure: true
+    service:
+      telemetry:
+        metrics:
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: ${env:MY_POD_IP}
+                    port: 8888
+      extensions:
+        - health_check
+      pipelines:
+        logs:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - otlphttp/loki
+        metrics:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - prometheusremotewrite/mimir
         traces:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
           exporters:
-            - otlp/vector
+            - otlp/tempo
