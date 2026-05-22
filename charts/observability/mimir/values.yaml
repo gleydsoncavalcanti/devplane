@@ -1,6 +1,14 @@
 mimir-distributed:
+  mimir:
+    structuredConfig:
+      ingester:
+        ring:
+          replication_factor: 1
+
   minio:
     enabled: true
+    serviceAccount:
+      name: mimir-minio-sa
     nodeSelector:
       devplane.io/node-pool: addons
     resources:

@@ -2,6 +2,8 @@ loki:
   deploymentMode: SingleBinary
   minio:
     enabled: true
+    serviceAccount:
+      name: loki-minio-sa
     nodeSelector:
       devplane.io/node-pool: addons
     resources:
