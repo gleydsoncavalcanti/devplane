@@ -1,4 +1,10 @@
 mimir-distributed:
+  mimir:
+    structuredConfig:
+      ingester:
+        ring:
+          replication_factor: 1
+
   minio:
     enabled: true
     serviceAccount:
