@@ -47,5 +47,7 @@ vector:
         inputs:
           - otlp.traces
         protocol:
-          type: http
+          type: grpc
           uri: http://tempo.observability.svc.cluster.local:4317
+        encoding:
+          codec: protobuf
